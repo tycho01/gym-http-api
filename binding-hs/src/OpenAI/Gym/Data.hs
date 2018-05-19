@@ -23,7 +23,7 @@ module OpenAI.Gym.Data
 
 import Data.Aeson (ToJSON(..), FromJSON(..), Value(..), Object, (.=), (.:), object)
 import Data.Aeson.Types (Parser)
-import Data.HashMap.Strict (HashMap)
+import Data.Map.Strict (Map)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Servant.API (ToHttpApiData(..))
@@ -77,7 +77,7 @@ instance FromJSON InstID where
   parseJSON = parseSingleton InstID "instance_id"
 
 -- | a mapping of instance_id to env_id (e.g. {'3c657dbc': 'CartPole-v0'}) for every env on the server
-newtype Environment = Environment { all_envs :: HashMap Text Text }
+newtype Environment = Environment { all_envs :: Map Text Text }
   deriving (Eq, Show, Generic)
 
 instance ToJSON Environment

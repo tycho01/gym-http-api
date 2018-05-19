@@ -33,7 +33,7 @@ library:
   source-dirs: src
   dependencies:
   - aeson                >= 1.0
-  - unordered-containers >= 0.2
+  - containers           >= 0.5
   - servant              >= 0.9
   - servant-lucid        >= 0.7
   - text                 >= 1.2

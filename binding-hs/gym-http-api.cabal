@@ -1,6 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.18.1.
+-- This file has been generated from package.yaml by hpack version 0.20.0.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: 6e4d655ff4f172247fa7f576dd70bf59abb5578f5fe9e78ca941d40e16d784bc
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -33,13 +35,13 @@ library
       src
   default-extensions: OverloadedStrings
   build-depends:
-      base           >= 4.7 && < 5
-    , servant-client >= 0.9
-    , aeson                >= 1.0
-    , unordered-containers >= 0.2
-    , servant              >= 0.9
-    , servant-lucid        >= 0.7
-    , text                 >= 1.2
+      aeson >=1.0
+    , base >=4.7 && <5
+    , containers >=0.5
+    , servant >=0.9
+    , servant-client >=0.9
+    , servant-lucid >=0.7
+    , text >=1.2
   exposed-modules:
       OpenAI.Gym
       OpenAI.Gym.API
@@ -54,9 +56,11 @@ executable example
       examples
   default-extensions: OverloadedStrings
   build-depends:
-      base           >= 4.7 && < 5
-    , servant-client >= 0.9
+      base >=4.7 && <5
+    , exceptions >=0.8
     , gym-http-api
-    , http-client    >= 0.5
-    , exceptions     >= 0.8
+    , http-client >=0.5
+    , servant-client >=0.9
+  other-modules:
+      Paths_gym_http_api
   default-language: Haskell2010
