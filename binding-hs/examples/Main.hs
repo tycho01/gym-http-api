@@ -1,33 +1,28 @@
--------------------------------------------------------------------------------
--- |
--- Module    :  Main
--- License   :  MIT
--- Stability :  experimental
--- Portability: non-portable
---
--- Example of how to build an agent using OpenAI.Gym.Client
--------------------------------------------------------------------------------
 {-# LANGUAGE NamedFieldPuns #-}
 module Main where
 
 import Prelude
-import Control.Monad (replicateM_, when)
-import Control.Monad.Catch()
-import Control.Exception.Base()
-
+import Control.Monad (replicateM_)
+import Control.Monad.Catch ()
+import Control.Exception.Base (finally)
 import OpenAI.Gym (Action(..), Config(..), Environment(..), GymEnv(..), Monitor(..), InstID(..), Outcome(..), Step(..), envCreate, envListAll, envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo, envMonitorStart, envMonitorClose, envClose, upload, shutdownServer)
+import Cli (CliArgs(..), getArgs)
+import Agents.Random (randomAgent)
 import Servant.Client (BaseUrl(..), ClientEnv(..), ClientM, Scheme(Http), runClientM)
 import Network.HTTP.Client (defaultManagerSettings, newManager)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, listToMaybe)
+import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import System.Environment (lookupEnv)
+import Control.Monad.Trans (liftIO)
 
 
 main :: IO ()
 main = do
+  CliArgs{game, state, scenario, record, verbose, quiet, ram, doRender, agent} <- getArgs
   apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   manager <- newManager defaultManagerSettings
-  out <- runClientM (example apiKey) (ClientEnv manager url)
+  out <- runClientM (example apiKey) $ ClientEnv manager url
   case out of
     Left err -> print err
     Right ok -> print ok
@@ -39,40 +34,35 @@ main = do
 
 example :: T.Text -> ClientM ()
 example apiKey = do
-  inst <- envCreate CartPoleV0
-  Monitor{directory} <- withMonitor inst $
-    replicateM_ episodeCount (agent inst)
-
-  -- Upload to the scoreboard.
-  -- TODO: Implement environment variable support.
-  upload (Config directory "algo" apiKey)
+  let game = CartPoleV0
+  liftIO $ print game
+  envs <- all_envs <$> envListAll
+  liftIO $ print envs
+  let gameIds = Map.filter (== (T.pack $ show game)) envs
+  liftIO $ print gameIds
+  let maybeId = listToMaybe $ map InstID $ Map.keys $ gameIds
+  inst <- case maybeId of
+          -- reuse existing env
+          Just instId -> return instId
+          Nothing -> envCreate game
+  liftIO $ print inst
+  let agent = replicateM_ episodeCount $ randomAgent inst
+  case maybeId of
+    Just instId -> agent
+    Nothing -> do
+      Monitor{directory} <- withMonitor inst agent
+      -- Upload to the scoreboard.
+      upload (Config directory "algo" apiKey)
 
   where
     episodeCount :: Int
     episodeCount = 100
 
 
-agent :: InstID -> ClientM ()
-agent inst = do
-  envReset inst
-  go 0 False
-  where
-    maxSteps :: Int
-    maxSteps = 200
-
-    reward :: Int
-    reward = 0
-
-    go :: Int -> Bool -> ClientM ()
-    go x done = do
-      Action a <- envActionSpaceSample inst
-      Outcome ob reward done _ <- envStep inst (Step a True)
-      when (not done && x < maxSteps) $ go (x + 1) done
-
-
 withMonitor :: InstID -> ClientM () -> ClientM Monitor
 withMonitor inst agent = do
   envMonitorStart inst configs
+  -- agent `finally` envMonitorClose inst
   agent
   envMonitorClose inst
   return configs

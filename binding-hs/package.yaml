@@ -40,10 +40,13 @@ library:
 
 executables:
   example:
-    main: Agent.hs
+    main: Main.hs
     source-dirs: examples
     dependencies:
     - gym-http-api
     - http-client    >= 0.5
     - exceptions     >= 0.8
+    - mtl
+    - cmdargs
+    - extra
 
