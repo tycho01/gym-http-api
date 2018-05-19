@@ -28,15 +28,15 @@ default-extensions:
 dependencies:
   - base           >= 4.7 && < 5
   - servant-client >= 0.9
+  - containers     >= 0.5
+  - text           >= 1.2
 
 library:
   source-dirs: src
   dependencies:
   - aeson                >= 1.0
-  - containers           >= 0.5
   - servant              >= 0.9
   - servant-lucid        >= 0.7
-  - text                 >= 1.2
 
 executables:
   example:

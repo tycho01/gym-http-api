@@ -18,12 +18,16 @@ import Control.Exception.Base()
 import OpenAI.Gym (Action(..), Config(..), Environment(..), GymEnv(..), Monitor(..), InstID(..), Outcome(..), Step(..), envCreate, envListAll, envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo, envMonitorStart, envMonitorClose, envClose, upload, shutdownServer)
 import Servant.Client (BaseUrl(..), ClientEnv(..), ClientM, Scheme(Http), runClientM)
 import Network.HTTP.Client (defaultManagerSettings, newManager)
+import Data.Maybe (fromMaybe)
+import qualified Data.Text as T
+import System.Environment (lookupEnv)
 
 
 main :: IO ()
 main = do
+  apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   manager <- newManager defaultManagerSettings
-  out <- runClientM example (ClientEnv manager url)
+  out <- runClientM (example apiKey) (ClientEnv manager url)
   case out of
     Left err -> print err
     Right ok -> print ok
@@ -33,15 +37,15 @@ main = do
     url = BaseUrl Http "localhost" 5000 ""
 
 
-example :: ClientM ()
-example = do
+example :: T.Text -> ClientM ()
+example apiKey = do
   inst <- envCreate CartPoleV0
   Monitor{directory} <- withMonitor inst $
     replicateM_ episodeCount (agent inst)
 
   -- Upload to the scoreboard.
   -- TODO: Implement environment variable support.
-  upload (Config directory "algo" "")
+  upload (Config directory "algo" apiKey)
 
   where
     episodeCount :: Int
