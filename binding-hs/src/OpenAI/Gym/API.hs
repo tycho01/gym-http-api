@@ -34,7 +34,7 @@ module OpenAI.Gym.API (
 
 import Data.Aeson (Object)
 import Data.Proxy (Proxy(..))
-import Servant.API
+import Servant.API (Capture, Get, JSON, MimeUnrender, mimeUnrender, Post, ReqBody, (:>), (:<|>)(..))
 import Servant.HTML.Lucid (HTML)
 import Servant.Client (ClientM, client)
 

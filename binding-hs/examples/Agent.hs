@@ -15,9 +15,9 @@ import Control.Monad (replicateM_, when)
 import Control.Monad.Catch()
 import Control.Exception.Base()
 
-import OpenAI.Gym
-import Servant.Client
-import Network.HTTP.Client
+import OpenAI.Gym (Action(..), Config(..), Environment(..), GymEnv(..), Monitor(..), InstID(..), Outcome(..), Step(..), envCreate, envListAll, envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo, envMonitorStart, envMonitorClose, envClose, upload, shutdownServer)
+import Servant.Client (BaseUrl(..), ClientEnv(..), ClientM, Scheme(Http), runClientM)
+import Network.HTTP.Client (defaultManagerSettings, newManager)
 
 
 main :: IO ()
