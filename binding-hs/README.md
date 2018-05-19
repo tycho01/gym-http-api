@@ -3,7 +3,9 @@
 To run the example agent:
 
 ```
+python ../gym_http_server.py
 stack build && stack exec example
+stack build --file-watch
 ```
 
 This library provides a servant-based REST client to the gym open-source library.
