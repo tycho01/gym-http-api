@@ -77,7 +77,7 @@ instance FromJSON InstID where
   parseJSON = parseSingleton InstID "instance_id"
 
 -- | a mapping of instance_id to env_id (e.g. {'3c657dbc': 'CartPole-v0'}) for every env on the server
-newtype Environment = Environment { all_envs :: Map Text Text }
+newtype Environment = Environment { allEnvs :: Map Text Text }
   deriving (Eq, Show, Generic)
 
 instance ToJSON Environment
@@ -139,18 +139,18 @@ data Monitor = Monitor
                             --   every file prefixed with "openaigym.") (default=False)
   , resume         :: !Bool -- ^ Retain the training data already in this directory, which will be
                             --   merged with our new data. (default=False)
-  , video_callable :: !Bool -- ^ video_callable parameter from the native env.monitor.start function
+  , videoCallable  :: !Bool -- ^ video_callable parameter from the native env.monitor.start function
   } deriving (Generic, Eq, Show)
 
 instance ToJSON Monitor
 
 -- | Parameters used to upload a monitored session to OpenAI's servers
 data Config = Config
-  { training_dir :: !Text -- ^ A directory containing the results of a training run.
-  , algorithm_id :: !Text -- ^ An arbitrary string indicating the paricular version of the
+  { trainingDir :: !Text -- ^ A directory containing the results of a training run.
+  , algorithmId :: !Text -- ^ An arbitrary string indicating the paricular version of the
                           --   algorithm (including choices of parameters) you are running.
                           --   (default=None)
-  , api_key      :: !Text -- ^ Your OpenAI API key
+  , apiKey      :: !Text -- ^ Your OpenAI API key
   } deriving (Generic, Eq, Show)
 
 instance ToJSON Config
