@@ -63,7 +63,7 @@ agent inst = do
     go x done = do
       Action a <- envActionSpaceSample inst
       Outcome ob reward done _ <- envStep inst (Step a True)
-      when (not done && x < 200) $ go (x + 1) done
+      when (not done && x < maxSteps) $ go (x + 1) done
 
 
 withMonitor :: InstID -> ClientM () -> ClientM Monitor
