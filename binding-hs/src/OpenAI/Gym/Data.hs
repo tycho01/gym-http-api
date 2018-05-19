@@ -27,8 +27,8 @@ import Data.Map.Strict (Map)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Servant.API (ToHttpApiData(..))
-import qualified Data.Text  as T
-import qualified Data.Aeson as A
+import qualified Data.Text  as T()
+import qualified Data.Aeson as A()
 
 -- | Classic Control Environments
 data GymEnv
