@@ -38,7 +38,7 @@ import Servant.API (Capture, Get, JSON, MimeUnrender, mimeUnrender, Post, ReqBod
 import Servant.HTML.Lucid (HTML)
 import Servant.Client (ClientM, client)
 
-import OpenAI.Gym.Data
+import OpenAI.Gym.Data (InstID, Environment, Observation, Outcome, Info, Action, Monitor, Config, Step, GymEnv)
 
 type GymAPI
   = "v1" :> ( "envs" :> ( ReqBody '[JSON] GymEnv :> Post '[JSON] InstID
