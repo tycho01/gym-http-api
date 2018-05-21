@@ -15,9 +15,9 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Exception.Lifted (finally)
 import Control.Monad.Trans (liftIO)
 
-import OpenAI.Gym (Action(..), Config(..), Environment(..), GymEnv(..), Monitor(..), InstID(..), Outcome(..), Step(..), envCreate, envListAll, envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo, envMonitorStart, envMonitorClose, envClose, upload, shutdownServer)
+import OpenAI.Gym (Action(..), Config(..), Environment(..), GymEnv(..), Monitor(..), InstID(..), Outcome(..), Step(..), Agent, envCreate, envListAll, envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo, envMonitorStart, envMonitorClose, envClose, upload, shutdownServer)
 import Cli (CliArgs(..), getArgs)
-import Agents.Random (randomAgent)
+import Agents (agents)
 
 
 loggerName = rootLoggerName -- "Gym Agent"
@@ -32,8 +32,9 @@ main = do
   let logLvl = if verbose then DEBUG else if quiet then WARNING else INFO
   updateGlobalLogger loggerName $ setLevel logLvl
   apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
+  let agentType = agents Map.! agent
   manager <- newManager defaultManagerSettings
-  out <- runClientM (example apiKey) $ ClientEnv manager url Nothing
+  out <- runClientM (example apiKey agentType) $ ClientEnv manager url Nothing
   case out of
     Left err -> log ERROR err
     Right _ -> return ()
@@ -42,9 +43,9 @@ main = do
     url :: BaseUrl
     url = BaseUrl Http "localhost" 5000 ""
 
--- | get envs, reuse existing `CartPolev0` env, run `randomAgent` x100, upload score
-example :: T.Text -> ClientM ()
-example apiKey = do
+-- | get envs, reuse existing `CartPolev0` env, run agent x100, upload score
+example :: T.Text -> Agent -> ClientM ()
+example apiKey agentType = do
   let game = CartPoleV0
   log INFO game
   envs <- all_envs <$> envListAll
@@ -57,7 +58,7 @@ example apiKey = do
           Just instId -> return instId
           Nothing -> envCreate game
   log INFO inst
-  let agent = replicateM_ episodeCount $ randomAgent inst
+  let agent = replicateM_ episodeCount $ agentType inst
   case maybeId of
     Just instId -> agent
     Nothing -> do

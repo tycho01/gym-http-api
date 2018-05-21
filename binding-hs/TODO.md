@@ -1,8 +1,13 @@
 ## Checklist
+- [~] add CLI flags
+    - game
+    - state
+    - scenario
+    - record
+    - ram
 - [ ] experiment
 - [ ] space
 - [~] agents
-- [~] add CLI flags
 - [ ] Optimization (lagging can be detected while running the example agent)
 - [ ] Test suite
 
