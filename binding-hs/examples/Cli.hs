@@ -30,6 +30,5 @@ getArgs = cmdArgs CliArgs
   ,verbose = False &= name "v" &= name "verbose" &= help "increase verbosity (can be specified multiple times)"
   ,quiet = False &= name "q" &= name "quiet" &= help "decrease verbosity (can be specified multiple times)"
   ,ram = False &= name "m" &= name "ram" &= help "the observation type, either image (default) or ram"
-  ,doRender = False &= name "e" &= name "render" &= help "render the environment on screen"
   ,agent = "random" &= name "a" &= name "agent" &= help "choose the agent, default random"
   }
