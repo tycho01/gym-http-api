@@ -1,5 +1,4 @@
 ## Checklist
-- [~] reuse env
 - [ ] experiment
 - [ ] space
 - [~] agents
