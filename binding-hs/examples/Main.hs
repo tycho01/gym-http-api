@@ -29,7 +29,7 @@ log lvl = liftIO . (logM loggerName lvl) . show
 main :: IO ()
 main = do
   CliArgs{game, state, scenario, record, verbose, quiet, ram, agent} <- getArgs
-  let logLvl = if verbose then WARNING else if quiet then DEBUG else INFO
+  let logLvl = if verbose then DEBUG else if quiet then WARNING else INFO
   updateGlobalLogger loggerName $ setLevel logLvl
   apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   manager <- newManager defaultManagerSettings
