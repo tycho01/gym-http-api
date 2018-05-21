@@ -19,7 +19,7 @@ import Control.Monad.Trans (liftIO)
 -- | main function, run `example` given CLI args + env vars
 main :: IO ()
 main = do
-  CliArgs{game, state, scenario, record, verbose, quiet, ram, doRender, agent} <- getArgs
+  CliArgs{game, state, scenario, record, verbose, quiet, ram, agent} <- getArgs
   apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   manager <- newManager defaultManagerSettings
   out <- runClientM (example apiKey) $ ClientEnv manager url Nothing

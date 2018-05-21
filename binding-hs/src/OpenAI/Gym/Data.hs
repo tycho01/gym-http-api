@@ -97,7 +97,7 @@ instance FromJSON Observation where
 -- | An action to take in the environment and whether or not to render that change
 data Step = Step
   { action :: !Value
-  , render :: !Bool
+  , render :: !Bool -- not respected by server
   } deriving (Eq, Generic, Show)
 
 instance ToJSON Step

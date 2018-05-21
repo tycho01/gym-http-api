@@ -12,7 +12,6 @@ data CliArgs = CliArgs
   ,verbose :: Bool
   ,quiet :: Bool
   ,ram :: Bool
-  ,doRender :: Bool
   ,agent :: String
   }
   deriving (Show, Data, Typeable)
