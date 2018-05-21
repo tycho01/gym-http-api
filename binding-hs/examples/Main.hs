@@ -22,7 +22,7 @@ main = do
   CliArgs{game, state, scenario, record, verbose, quiet, ram, doRender, agent} <- getArgs
   apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   manager <- newManager defaultManagerSettings
-  out <- runClientM (example apiKey) $ ClientEnv manager url
+  out <- runClientM (example apiKey) $ ClientEnv manager url Nothing
   case out of
     Left err -> print err
     Right ok -> print ok
