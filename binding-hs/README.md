@@ -5,9 +5,10 @@ To run the example agent:
 ```
 python ../gym_http_server.py
 hlint . --report
+stack haddock
 stack build && stack exec example
 stack build --file-watch
-stack haddock
+stack exec example -- --game a -q -e
 ```
 
 This library provides a servant-based REST client to the gym open-source library.
