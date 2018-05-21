@@ -13,8 +13,8 @@ description:    This library provides a REST client to the gym open-source libra
 category:       Web, Learning Environments
 homepage:       https://github.com/stites/gym-http-api#readme
 bug-reports:    https://github.com/stites/gym-http-api/issues
-author:         Daniel Lucsanszky, Sam Stites
-maintainer:     dl3913@ic.ac.uk, sam@stites.io
+author:         Daniel Lucsanszky, Sam Stites, Tycho Grouwstra
+maintainer:     dl3913@ic.ac.uk, sam@stites.io, tychogrouwstra@gmail.com
 license:        MIT
 license-file:   LICENSE
 build-type:     Simple

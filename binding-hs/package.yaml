@@ -2,8 +2,8 @@ name: gym-http-api
 version: '0.1.0.0'
 description: Haskell bindings for the OpenAI gym API
 category: Web, Learning Environments
-author: Daniel Lucsanszky, Sam Stites
-maintainer: dl3913@ic.ac.uk, sam@stites.io
+author: Daniel Lucsanszky, Sam Stites, Tycho Grouwstra
+maintainer: dl3913@ic.ac.uk, sam@stites.io, tychogrouwstra@gmail.com
 license: MIT
 license-file: LICENSE
 github: stites/gym-http-api/binding-hs
