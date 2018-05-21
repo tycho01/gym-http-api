@@ -1,10 +1,4 @@
 ## Checklist
-- [~] add CLI flags
-    - game
-    - state
-    - scenario
-    - record
-    - ram
 - [ ] experiment
 - [ ] space
 - [~] agents

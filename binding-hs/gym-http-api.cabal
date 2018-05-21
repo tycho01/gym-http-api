@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 173402bd2d4584fef2b72cb0cfca5656c4388db03757a511c024c8fb03a8aa42
+-- hash: 10e29c7b6dfc2e87ba648a12fc84d8a988fd5478b46b8f92fffbc9e92a0f4796
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -38,6 +38,7 @@ library
       aeson >=1.3.1.1
     , base >=4.11.1.0
     , containers >=0.5.11.0
+    , invertible-syntax >=0.2.1
     , servant >=0.13.0.1
     , servant-client >=0.13.0.1
     , servant-lucid >=0.8

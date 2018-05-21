@@ -22,16 +22,26 @@ module OpenAI.Gym.Data
   , Agent
   ) where
 
+import Prelude hiding (print, pure, (<*))
 import Data.Aeson (ToJSON(..), FromJSON(..), Value(..), Object, (.=), (.:), object)
-import Data.Aeson.Types (Parser)
+import qualified Data.Aeson.Types as AesonTypes -- (Parser as AesonParser)
 import Data.Map.Strict (Map)
 import Data.Text (Text)
+import Data.Maybe (fromJust)
 import GHC.Generics (Generic)
+import Text.Syntax (Syntax, text, (<|>))
+import Text.Syntax.Classes (pure)
+import Text.Syntax.Combinators ((<*))
+import Text.Syntax.Parser.Naive (Parser(..))
+import Text.Syntax.Printer.Naive (print)
 import Servant.API (ToHttpApiData(..))
 import Servant.Client (ClientM)
 import qualified Data.Text  as T()
 import qualified Data.Aeson as A()
 -- {-# ANN module "HLint: ignore Use camelCase" #-} -- silences hlint but won't compile...
+
+-- runParser :: ? a => Parser a -> String -> [(a, String)]
+runParser (Parser p) = p
 
 -- | Classic Control Environments
 data GymEnv
@@ -50,17 +60,19 @@ data GymEnv
   | PongV0                   -- ^ Maximize score in the game Pong
   deriving (Eq, Enum, Ord)
 
+gymEnv :: Syntax f => f GymEnv
+gymEnv =  pure CartPoleV0               <* text "CartPole-v0"
+      <|> pure CartPoleV1               <* text "CartPole-v1"
+      <|> pure AcrobotV1                <* text "Acrobot-v1"
+      <|> pure MountainCarV0            <* text "MountainCar-v0"
+      <|> pure MountainCarContinuousV0  <* text "MountainCarContinuous-v0"
+      <|> pure PendulumV0               <* text "Pendulum-v0"
+      <|> pure FrozenLakeV0             <* text "FrozenLake-v0"
+      <|> pure PongRamV0                <* text "Pong-ram-v0"
+      <|> pure PongV0                   <* text "Pong-v0"
 
-instance Show GymEnv where
-  show CartPoleV0              = "CartPole-v0"
-  show CartPoleV1              = "CartPole-v1"
-  show AcrobotV1               = "Acrobot-v1"
-  show MountainCarV0           = "MountainCar-v0"
-  show MountainCarContinuousV0 = "MountainCarContinuous-v0"
-  show PendulumV0              = "Pendulum-v0"
-  show FrozenLakeV0            = "FrozenLake-v0"
-  show PongRamV0               = "Pong-ram-v0"
-  show PongV0                  = "Pong-v0"
+instance Show GymEnv where show = fromJust . print gymEnv
+instance Read GymEnv where readsPrec _ = runParser gymEnv
 
 instance ToJSON GymEnv where
   toJSON env = object [ "env_id" .= show env ]
@@ -162,7 +174,7 @@ instance ToJSON Config
 type Agent = InstID -> ClientM ()
 
 -- | helper to parse a singleton object from aeson
-parseSingleton :: FromJSON a => (a -> b) -> Text -> Value -> Parser b
+parseSingleton :: FromJSON a => (a -> b) -> Text -> Value -> AesonTypes.Parser b
 parseSingleton fn f (Object v) = fn <$> v .: f
 parseSingleton fn f _          = mempty
 

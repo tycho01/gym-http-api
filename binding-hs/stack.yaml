@@ -2,5 +2,6 @@ flags: {}
 extra-package-dbs: []
 packages:
 - .
-extra-deps: []
+extra-deps:
+- invertible-syntax-0.2.1
 resolver: nightly-2018-05-21

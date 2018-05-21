@@ -1,8 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
 import Prelude hiding (log)
 import qualified Data.Text as T
+import Text.Read (readMaybe)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe, listToMaybe)
 import System.Environment (lookupEnv)
@@ -25,16 +27,26 @@ loggerName = rootLoggerName -- "Gym Agent"
 log :: (MonadIO m, Show a) => Priority -> a -> m ()
 log lvl = liftIO . (logM loggerName lvl) . show
 
+defaultGame = CartPoleV0
+
 -- | main function, run `example` given CLI args + env vars
 main :: IO ()
 main = do
   CliArgs{game, verbose, quiet, agent} <- getArgs
   let logLvl = if verbose then DEBUG else if quiet then WARNING else INFO
   updateGlobalLogger loggerName $ setLevel logLvl
+
+  gymEnv :: GymEnv <- case readMaybe game of
+                Just env -> return env
+                Nothing -> do
+                  log ERROR "unknown game"
+                  return defaultGame -- default
+
   apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   let agentType = agents Map.! agent
   manager <- newManager defaultManagerSettings
-  out <- runClientM (example apiKey agentType) $ ClientEnv manager url Nothing
+  let experiment = example apiKey gymEnv agentType :: ClientM ()
+  out <- runClientM experiment $ ClientEnv manager url Nothing
   case out of
     Left err -> log ERROR err
     Right _ -> return ()
@@ -43,20 +55,19 @@ main = do
     url :: BaseUrl
     url = BaseUrl Http "localhost" 5000 ""
 
--- | get envs, reuse existing `CartPolev0` env, run agent x100, upload score
-example :: T.Text -> Agent -> ClientM ()
-example apiKey agentType = do
-  let game = CartPoleV0
-  log INFO game
+-- | get game env, run agent x100, upload score
+example :: T.Text -> GymEnv -> Agent -> ClientM ()
+example apiKey gymEnv agentType = do
+  log INFO gymEnv
   envs <- all_envs <$> envListAll
   log INFO envs
-  let gameIds = Map.filter (== (T.pack $ show game)) envs
+  let gameIds = Map.filter (== (T.pack $ show gymEnv)) envs
   log INFO gameIds
   let maybeId = listToMaybe $ map InstID $ Map.keys $ gameIds
   inst <- case maybeId of
           -- reuse existing env
           Just instId -> return instId
-          Nothing -> envCreate game
+          Nothing -> envCreate gymEnv
   log INFO inst
   let agent = replicateM_ episodeCount $ agentType inst
   case maybeId of
