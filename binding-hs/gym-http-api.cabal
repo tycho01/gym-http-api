@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e22a050afa980499da6f91cc70bd9074501fbb06dda0c046b316d89ee7d260a2
+-- hash: 173402bd2d4584fef2b72cb0cfca5656c4388db03757a511c024c8fb03a8aa42
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -74,5 +74,23 @@ executable example
     , transformers-base >=0.4.5.2
   other-modules:
       Cli
+      Paths_gym_http_api
+  default-language: Haskell2010
+
+test-suite stack-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs:
+      test
+  default-extensions: OverloadedStrings
+  build-depends:
+      HUnit >=1.6.0.0
+    , aeson >=1.3.1.1
+    , base >=4.11.1.0
+    , containers >=0.5.11.0
+    , gym-http-api >=0.1.0.0
+    , servant-client >=0.13.0.1
+    , text >=1.2.3.0
+  other-modules:
       Paths_gym_http_api
   default-language: Haskell2010

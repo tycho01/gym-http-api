@@ -54,3 +54,11 @@ executables:
     - monad-control >= 1.0.2.3
     - hslogger >= 1.2.10
 
+tests:
+  stack-test:
+    main: Spec.hs
+    source-dirs: test
+    dependencies:
+    - HUnit >= 1.6.0.0
+    - gym-http-api >= 0.1.0.0
+    - aeson >= 1.3.1.1

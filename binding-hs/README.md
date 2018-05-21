@@ -8,6 +8,7 @@ hlint . --report
 stack haddock
 stack build && stack exec example
 stack build --file-watch
+stack test --file-watch
 stack exec example -- --game a -a random
 ```
 
