@@ -1,31 +1,42 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Main where
 
-import Prelude
+import Prelude hiding (log)
+import qualified Data.Text as T
+import qualified Data.Map.Strict as Map
+import Data.Maybe (fromMaybe, listToMaybe)
+import System.Environment (lookupEnv)
+import System.Log.Logger (Priority(..), logM, rootLoggerName, setLevel, updateGlobalLogger)
+import Servant.Client (BaseUrl(..), ClientEnv(..), ClientM, Scheme(Http), runClientM)
+import Network.HTTP.Client (defaultManagerSettings, newManager)
 import Control.Monad (replicateM_)
 import Control.Monad.Catch ()
+import Control.Monad.IO.Class (MonadIO)
 import Control.Exception.Lifted (finally)
+import Control.Monad.Trans (liftIO)
+
 import OpenAI.Gym (Action(..), Config(..), Environment(..), GymEnv(..), Monitor(..), InstID(..), Outcome(..), Step(..), envCreate, envListAll, envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo, envMonitorStart, envMonitorClose, envClose, upload, shutdownServer)
 import Cli (CliArgs(..), getArgs)
 import Agents.Random (randomAgent)
-import Servant.Client (BaseUrl(..), ClientEnv(..), ClientM, Scheme(Http), runClientM)
-import Network.HTTP.Client (defaultManagerSettings, newManager)
-import Data.Maybe (fromMaybe, listToMaybe)
-import qualified Data.Map.Strict as Map
-import qualified Data.Text as T
-import System.Environment (lookupEnv)
-import Control.Monad.Trans (liftIO)
+
+
+loggerName = rootLoggerName -- "Gym Agent"
+-- | logging function
+log :: (MonadIO m, Show a) => Priority -> a -> m ()
+log lvl = liftIO . (logM loggerName lvl) . show
 
 -- | main function, run `example` given CLI args + env vars
 main :: IO ()
 main = do
   CliArgs{game, state, scenario, record, verbose, quiet, ram, agent} <- getArgs
+  let logLvl = if verbose then WARNING else if quiet then DEBUG else INFO
+  updateGlobalLogger loggerName $ setLevel logLvl
   apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   manager <- newManager defaultManagerSettings
   out <- runClientM (example apiKey) $ ClientEnv manager url Nothing
   case out of
-    Left err -> print err
-    Right ok -> print ok
+    Left err -> log ERROR err
+    Right _ -> return ()
 
   where
     url :: BaseUrl
@@ -35,17 +46,17 @@ main = do
 example :: T.Text -> ClientM ()
 example apiKey = do
   let game = CartPoleV0
-  liftIO $ print game
+  log INFO game
   envs <- all_envs <$> envListAll
-  liftIO $ print envs
+  log INFO envs
   let gameIds = Map.filter (== (T.pack $ show game)) envs
-  liftIO $ print gameIds
+  log INFO gameIds
   let maybeId = listToMaybe $ map InstID $ Map.keys $ gameIds
   inst <- case maybeId of
           -- reuse existing env
           Just instId -> return instId
           Nothing -> envCreate game
-  liftIO $ print inst
+  log INFO inst
   let agent = replicateM_ episodeCount $ randomAgent inst
   case maybeId of
     Just instId -> agent

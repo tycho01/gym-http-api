@@ -52,4 +52,5 @@ executables:
     - transformers-base >= 0.4.5.2
     - lifted-base >= 0.2.3.12
     - monad-control >= 1.0.2.3
+    - hslogger >= 1.2.10
 

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a284b4ba04a0d61c47ebc532684165abe2c9df1f76af8285329053ab2b37058a
+-- hash: e22a050afa980499da6f91cc70bd9074501fbb06dda0c046b316d89ee7d260a2
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -64,6 +64,7 @@ executable example
     , exceptions >=0.10.0
     , extra >=1.6.6
     , gym-http-api >=0.1.0.0
+    , hslogger >=1.2.10
     , http-client >=0.5.12.1
     , lifted-base >=0.2.3.12
     , monad-control >=1.0.2.3

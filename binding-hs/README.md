@@ -8,7 +8,7 @@ hlint . --report
 stack haddock
 stack build && stack exec example
 stack build --file-watch
-stack exec example -- --game a -q -e
+stack exec example -- --game a -q
 ```
 
 This library provides a servant-based REST client to the gym open-source library.
