@@ -19,6 +19,7 @@ module OpenAI.Gym.Data
   , Action (..)
   , Monitor (..)
   , Config (..)
+  , Agent
   ) where
 
 import Data.Aeson (ToJSON(..), FromJSON(..), Value(..), Object, (.=), (.:), object)
@@ -27,6 +28,7 @@ import Data.Map.Strict (Map)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Servant.API (ToHttpApiData(..))
+import Servant.Client (ClientM)
 import qualified Data.Text  as T()
 import qualified Data.Aeson as A()
 -- {-# ANN module "HLint: ignore Use camelCase" #-} -- silences hlint but won't compile...
@@ -156,6 +158,8 @@ data Config = Config
 
 instance ToJSON Config
 
+
+type Agent = InstID -> ClientM ()
 
 -- | helper to parse a singleton object from aeson
 parseSingleton :: FromJSON a => (a -> b) -> Text -> Value -> Parser b
