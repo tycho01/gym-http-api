@@ -1,6 +1,6 @@
-resolver: lts-8.4
-packages:
-- '.'
-extra-deps: []
 flags: {}
 extra-package-dbs: []
+packages:
+- .
+extra-deps: []
+resolver: nightly-2018-05-21
