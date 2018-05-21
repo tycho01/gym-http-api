@@ -1,9 +1,19 @@
+-------------------------------------------------------------------------------
+-- |
+-- Module    :  Agents.Random
+-- License   :  MIT
+-- Stability :  experimental
+-- Portability: non-portable
+--
+-- agent that acts randomly
+-------------------------------------------------------------------------------
 module Agents.Random (randomAgent) where
 
 import OpenAI.Gym (Action(..), Environment(..), GymEnv(..), InstID(..), Outcome(..), Step(..), envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo)
 import Servant.Client (ClientM)
 import Control.Monad (replicateM_, when)
 
+-- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`
 randomAgent :: InstID -> ClientM ()
 randomAgent inst = do
   envReset inst -- first close monitor

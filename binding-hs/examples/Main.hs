@@ -16,7 +16,7 @@ import qualified Data.Text as T
 import System.Environment (lookupEnv)
 import Control.Monad.Trans (liftIO)
 
-
+-- | main function, run `example` given CLI args + env vars
 main :: IO ()
 main = do
   CliArgs{game, state, scenario, record, verbose, quiet, ram, doRender, agent} <- getArgs
@@ -31,7 +31,7 @@ main = do
     url :: BaseUrl
     url = BaseUrl Http "localhost" 5000 ""
 
-
+-- | get envs, reuse existing `CartPolev0` env, run `randomAgent` x100, upload score
 example :: T.Text -> ClientM ()
 example apiKey = do
   let game = CartPoleV0
@@ -58,7 +58,7 @@ example apiKey = do
     episodeCount :: Int
     episodeCount = 100
 
-
+-- | run agent within monitor, ctrl-C proof
 withMonitor :: InstID -> ClientM () -> ClientM Monitor
 withMonitor inst agent = do
   envMonitorStart inst configs

@@ -40,6 +40,7 @@ import Servant.Client (ClientM, client)
 
 import OpenAI.Gym.Data (InstID, Environment, Observation, Outcome, Info, Action, Monitor, Config, Step, GymEnv)
 
+-- | Servant description of OpenAI's Gym HTTP API
 type GymAPI
   = "v1" :> ( "envs" :> ( ReqBody '[JSON] GymEnv :> Post '[JSON] InstID
                      :<|> Get '[JSON] Environment

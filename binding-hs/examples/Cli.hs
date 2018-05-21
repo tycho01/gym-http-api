@@ -17,9 +17,11 @@ data CliArgs = CliArgs
   }
   deriving (Show, Data, Typeable)
 
+-- | Gym constant for default initial game state
 stateDefault :: Int
 stateDefault = -1
 
+-- | get CLI args. run with `--help` for info.
 getArgs :: IO CliArgs
 getArgs = cmdArgs CliArgs
   {game = "Airstriker-Genesis" &= name "g" &= name "game" &= help "the name or path for the game to run"

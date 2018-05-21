@@ -29,6 +29,7 @@ import GHC.Generics (Generic)
 import Servant.API (ToHttpApiData(..))
 import qualified Data.Text  as T()
 import qualified Data.Aeson as A()
+-- {-# ANN module "HLint: ignore Use camelCase" #-} -- silences hlint but won't compile...
 
 -- | Classic Control Environments
 data GymEnv
