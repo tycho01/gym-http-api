@@ -4,7 +4,7 @@ module Main where
 import Prelude
 import Control.Monad (replicateM_)
 import Control.Monad.Catch ()
-import Control.Exception.Base (finally)
+import Control.Exception.Lifted (finally)
 import OpenAI.Gym (Action(..), Config(..), Environment(..), GymEnv(..), Monitor(..), InstID(..), Outcome(..), Step(..), envCreate, envListAll, envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo, envMonitorStart, envMonitorClose, envClose, upload, shutdownServer)
 import Cli (CliArgs(..), getArgs)
 import Agents.Random (randomAgent)
@@ -62,9 +62,7 @@ example apiKey = do
 withMonitor :: InstID -> ClientM () -> ClientM Monitor
 withMonitor inst agent = do
   envMonitorStart inst configs
-  -- agent `finally` envMonitorClose inst
-  agent
-  envMonitorClose inst
+  agent `finally` envMonitorClose inst -- clean even on ctrl-C
   return configs
   where
     configs :: Monitor
