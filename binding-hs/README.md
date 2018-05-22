@@ -9,7 +9,7 @@ stack haddock
 stack build && stack exec example
 stack build --file-watch
 stack test --file-watch
-stack exec example -- --game a -a random
+stack exec example -- -a random --game Airstriker-Genesis
 ```
 
 This library provides a servant-based REST client to the gym open-source library.

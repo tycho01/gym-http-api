@@ -58,6 +58,10 @@ data GymEnv
   -- | Atari Games
   | PongRamV0                -- ^ Maximize score in the game Pong, with RAM as input
   | PongV0                   -- ^ Maximize score in the game Pong
+
+  -- Retro games
+  -- Genesis games
+  | Airstriker
   deriving (Eq, Enum, Ord)
 
 gymEnv :: Syntax f => f GymEnv
@@ -70,6 +74,7 @@ gymEnv =  pure CartPoleV0               <* text "CartPole-v0"
       <|> pure FrozenLakeV0             <* text "FrozenLake-v0"
       <|> pure PongRamV0                <* text "Pong-ram-v0"
       <|> pure PongV0                   <* text "Pong-v0"
+      <|> pure Airstriker               <* text "Airstriker-Genesis"
 
 instance Show GymEnv where show = fromJust . print gymEnv
 instance Read GymEnv where readsPrec _ = runParser gymEnv
