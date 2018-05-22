@@ -42,10 +42,10 @@ main = do
                   log ERROR "unknown game"
                   return defaultGame -- default
 
-  apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
+  -- apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   let agentType = agents Map.! agent
   manager <- newManager defaultManagerSettings
-  let experiment = example apiKey gymEnv agentType :: ClientM ()
+  let experiment = example gymEnv agentType :: ClientM ()
   out <- runClientM experiment $ ClientEnv manager url Nothing
   case out of
     Left err -> log ERROR err
@@ -56,8 +56,8 @@ main = do
     url = BaseUrl Http "localhost" 5000 ""
 
 -- | get game env, run agent x100, upload score
-example :: T.Text -> GymEnv -> Agent -> ClientM ()
-example apiKey gymEnv agentType = do
+example :: GymEnv -> Agent -> ClientM ()
+example gymEnv agentType = do
   log INFO gymEnv
   envs <- all_envs <$> envListAll
   log INFO envs
@@ -74,8 +74,6 @@ example apiKey gymEnv agentType = do
     Just instId -> agent
     Nothing -> do
       Monitor{directory} <- withMonitor inst agent
-      -- Upload to the scoreboard.
-      upload (Config directory "algo" apiKey)
 
   where
     episodeCount :: Int
