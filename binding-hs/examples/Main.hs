@@ -70,24 +70,12 @@ example gymEnv agentType = do
           Nothing -> envCreate gymEnv
   log INFO inst
   let agent = replicateM_ episodeCount $ agentType inst
-  case maybeId of
-    Just instId -> agent
-    Nothing -> do
-      Monitor{directory} <- withMonitor inst agent
+  agent
 
   where
     episodeCount :: Int
     episodeCount = 100
 
--- | run agent within monitor, ctrl-C proof
-withMonitor :: InstID -> ClientM () -> ClientM Monitor
-withMonitor inst agent = do
-  envMonitorStart inst configs
-  agent `finally` envMonitorClose inst -- clean even on ctrl-C
-  return configs
-  where
-    configs :: Monitor
-    configs = Monitor "/tmp/random-agent-results" True False False
 
 
 
