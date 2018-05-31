@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import uuid
 import gym
 import retro
@@ -13,6 +13,13 @@ import json
 import logging
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.ERROR)
+
+
+class MyResponse(Response):
+    default_mimetype = 'application/json'
+    def __init__(self, response=None, status=None, headers=None,
+                mimetype=None, content_type=None, direct_passthrough=False):
+        Response.__init__(self, response, status, headers, mimetype, content_type, direct_passthrough)
 
 ########## Container for environments ##########
 class Envs(object):
@@ -148,6 +155,7 @@ class Envs(object):
 ########## App setup ##########
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+app.response_class = MyResponse
 envs = Envs()
 ########## Error handling ##########
 class InvalidUsage(Exception):
@@ -278,7 +286,7 @@ def env_action_space_info(instance_id):
     space to space
     """
     info = envs.get_action_space_info(instance_id)
-    return jsonify(info = info)
+    return jsonify(info=info)
 
 @app.route('/v1/envs/<instance_id>/action_space/sample', methods=['GET'])
 def env_action_space_sample(instance_id):
