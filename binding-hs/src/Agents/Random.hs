@@ -19,12 +19,8 @@ randomAgent inst = do
   envReset inst -- first close monitor
   go 0 False
   where
-    maxSteps :: Int
     maxSteps = 200
-
-    reward :: Int
     reward = 0
-
     go :: Int -> Bool -> ClientM ()
     go x done = do
       Action a <- envActionSpaceSample inst

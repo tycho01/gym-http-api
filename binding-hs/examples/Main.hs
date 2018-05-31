@@ -42,7 +42,6 @@ main = do
                   log ERROR "unknown game"
                   return defaultGame -- default
 
-  -- apiKey <- T.pack <$> fromMaybe "" <$> lookupEnv "OPENAI_GYM_API_KEY"
   let agentType = agents Map.! agent
   manager <- newManager defaultManagerSettings
   let experiment = example gymEnv agentType :: ClientM ()
@@ -52,7 +51,6 @@ main = do
     Right _ -> return ()
 
   where
-    url :: BaseUrl
     url = BaseUrl Http "localhost" 5000 ""
 
 -- | get game env, run agent x100, upload score
@@ -75,7 +73,3 @@ example gymEnv agentType = do
   where
     episodeCount :: Int
     episodeCount = 100
-
-
-
-

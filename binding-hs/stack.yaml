@@ -5,3 +5,5 @@ packages:
 extra-deps:
 - invertible-syntax-0.2.1
 resolver: nightly-2018-05-21
+allow-newer: true
+allow-different-user: true

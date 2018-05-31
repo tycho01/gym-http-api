@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.28.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 10e29c7b6dfc2e87ba648a12fc84d8a988fd5478b46b8f92fffbc9e92a0f4796
+-- hash: 6034ad8cab54f49b92b546eda87371f2698b264cea3a50fb281c1ae28def4c71
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -19,7 +19,6 @@ license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
-
 extra-source-files:
     CHANGELOG.md
     README.md
