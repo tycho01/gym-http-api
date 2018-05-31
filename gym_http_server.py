@@ -2,6 +2,7 @@
 from flask import Flask, request, jsonify, Response
 import uuid
 import gym
+from gym.envs.registration import EnvSpec
 import retro
 import numpy as np
 import six
@@ -100,6 +101,7 @@ class Envs(object):
         try:
             try:
                 env = retro.make(env_id, **kwargs)
+                env.spec = EnvSpec(env_id + "-v0")
             except FileNotFoundError:
                 env = gym.make(env_id, **kwargs)
             if seed:
