@@ -169,19 +169,25 @@ class Envs(object):
     def _get_space_properties(self, space):
         info = {}
         info['name'] = space.__class__.__name__
-        if info['name'] == 'Discrete':
-            info['n'] = space.n
-        elif info['name'] == 'Box':
-            info['shape'] = space.shape
-            # It's not JSON compliant to have Infinity, -Infinity, NaN.
-            # Many newer JSON parsers allow it, but many don't. Notably python json
-            # module can read and write such floats. So we only here fix "export version",
-            # also make it flat.
-            info['low']  = [(x if x != -np.inf else -1e100) for x in np.array(space.low ).flatten()]
-            info['high'] = [(x if x != +np.inf else +1e100) for x in np.array(space.high).flatten()]
-        elif info['name'] == 'HighLow':
-            info['num_rows'] = space.num_rows
-            info['matrix'] = [((float(x) if x != -np.inf else -1e100) if x != +np.inf else +1e100) for x in np.array(space.matrix).flatten()]
+        if info['name'] == 'Tuple':
+            info['spaces'] = [self._get_space_properties(spc) for spc in space.spaces]
+        elif info['name'] == 'Dict':
+            info['spaces'] = {k: self._get_space_properties(spc) for k, spc in space.spaces.items()}
+        else:
+            info['dtype'] = str(space.dtype)
+            info['shape'] = json_encode_np(space.shape)
+            if info['name'] == 'Discrete':
+                info['n'] = space.n
+            elif info['name'] == 'MultiBinary':
+                info['n'] = space.n
+            elif info['name'] == 'MultiDiscrete':
+                info['nvec'] = space.nvec
+            elif info['name'] == 'Box':
+                info['low']  = json_encode_np(space.low)
+                info['high']  = json_encode_np(space.high)
+            elif info['name'] == 'HighLow':
+                info['num_rows'] = space.num_rows
+                info['matrix'] = json_encode_np(space.matrix)
         return info
 
     def monitor_start(self, instance_id, directory, force, resume, video_callable):
