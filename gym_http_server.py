@@ -7,14 +7,47 @@ import numpy as np
 import six
 import argparse
 import sys
-import json
 
 from timeit import default_timer as timer
 import cProfile
+from ujson import dumps
 
 import logging
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.ERROR)
+
+def json_encode_np(obj):
+    """
+    JSON can't serialize numpy types, so convert to pure python
+    """
+    if isinstance(obj, list):
+        # return list(obj)
+        return [json_encode_np(x) for x in obj]
+    if isinstance(obj, np.ndarray):
+        # return list(obj)
+        return [json_encode_np(x) for x in obj]
+    elif isinstance(obj, np.float32):
+        return float(obj)
+    elif isinstance(obj, np.float64):
+        return float(obj)
+    elif isinstance(obj, np.int8):
+        return int(obj)
+    elif isinstance(obj, np.int16):
+        return int(obj)
+    elif isinstance(obj, np.int32):
+        return int(obj)
+    elif isinstance(obj, np.int64):
+        return int(obj)
+    elif isinstance(obj, np.uint8):
+        return int(obj)
+    elif isinstance(obj, np.uint16):
+        return int(obj)
+    elif isinstance(obj, np.uint32):
+        return int(obj)
+    elif isinstance(obj, np.uint64):
+        return int(obj)
+    else:
+        return obj
 
 
 class Timer(object):
