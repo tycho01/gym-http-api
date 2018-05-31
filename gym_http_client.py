@@ -3,9 +3,22 @@ import six.moves.urllib.parse as urlparse
 import json
 import os
 
+from timeit import default_timer as timer
+
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+class Timer(object):
+    def __init__(self, label="default"):
+        self.label = label
+
+    def __enter__(self):
+        self.start = timer()
+
+    def __exit__(self, type, value, tb):
+        end = timer()
+        print(self.label + ": " + str(end - self.start))
 
 class Client(object):
     """
@@ -75,7 +88,11 @@ class Client(object):
     def env_action_space_info(self, instance_id):
         route = '/v1/envs/{}/action_space/'.format(instance_id)
         resp = self._get_request(route)
+        print("resp")
+        print(resp)
         info = resp['info']
+        print("info")
+        print(info)
         return info
 
     def env_action_space_sample(self, instance_id):
@@ -145,7 +162,8 @@ if __name__ == '__main__':
     client = Client(remote_base)
 
     # Create environment
-    env_id = 'CartPole-v0'
+    # env_id = 'CartPole-v0'
+    env_id = 'Airstriker-Genesis'
     instance_id = client.env_create(env_id)
 
     # Check properties
@@ -153,9 +171,23 @@ if __name__ == '__main__':
     action_info = client.env_action_space_info(instance_id)
     obs_info = client.env_observation_space_info(instance_id)
 
-    # Run a single step
-    client.env_monitor_start(instance_id, directory='tmp', force=True)
-    init_obs = client.env_reset(instance_id)
-    [observation, reward, done, info] = client.env_step(instance_id, 1, True)
-    client.env_monitor_close(instance_id)
-    client.upload(training_dir='tmp')
+    for i in range(1, 100):
+
+        # Run a single step
+        # client.env_monitor_start(instance_id, directory='tmp', force=True)
+        init_obs = client.env_reset(instance_id)
+
+        done = False
+        maxSteps = 200
+        # reward = 0
+        # action = client.env_action_space_sample(instance_id)
+
+        for x in range(0, maxSteps):
+            with Timer("action"):
+                action = client.env_action_space_sample(instance_id) # e-3
+            [observation, reward, done, info] = client.env_step(instance_id, action, True)
+            if done:
+                break
+
+        # client.env_monitor_close(instance_id)
+        # client.upload(training_dir='tmp')
