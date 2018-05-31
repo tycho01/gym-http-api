@@ -311,12 +311,21 @@ def env_step(instance_id):
         - done: whether the episode has ended
         - info: a dict containing auxiliary diagnostic information
     """
-    json = request.get_json()
-    action = get_required_param(json, 'action')
-    render = get_optional_param(json, 'render', False)
-    [obs_jsonable, reward, done, info] = envs.step(instance_id, action, render)
-    return jsonify(observation = obs_jsonable,
-                    reward = reward, done = done, info = info)
+    # cProfile.run('')
+    with Timer("step"):
+        with Timer("json"):
+            json = request.get_json() # e-4
+        with Timer("action"):
+            action = get_required_param(json, 'action') # e-6
+        with Timer("render"):
+            render = get_optional_param(json, 'render', False) # e-6
+        with Timer("arr"):
+            [obs_jsonable, reward, done, info] = envs.step(instance_id, action, render) # e-2
+        with Timer("ret"):
+            # ret = jsonify(observation = obs_jsonable,
+            #                 reward = reward, done = done, info = info) # e-1
+            ret = dumps({'observation':obs_jsonable, 'reward':reward, 'done':done, 'info':info}) # e-1
+    return ret
 
 @app.route('/v1/envs/<instance_id>/action_space/', methods=['GET'])
 def env_action_space_info(instance_id):
