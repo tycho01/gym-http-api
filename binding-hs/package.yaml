@@ -5,7 +5,6 @@ category: Web, Learning Environments
 author: Daniel Lucsanszky, Sam Stites, Tycho Grouwstra
 maintainer: dl3913@ic.ac.uk, sam@stites.io, tychogrouwstra@gmail.com
 license: MIT
-license-file: LICENSE
 github: stites/gym-http-api/binding-hs
 synopsis: REST client to the gym-http-api project
 description:
@@ -20,7 +19,6 @@ description:
 extra-source-files:
   - README.md
   - TODO.md
-  - CHANGELOG.md
 
 default-extensions:
   - OverloadedStrings

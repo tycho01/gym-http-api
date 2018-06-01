@@ -16,11 +16,9 @@ bug-reports:    https://github.com/stites/gym-http-api/issues
 author:         Daniel Lucsanszky, Sam Stites, Tycho Grouwstra
 maintainer:     dl3913@ic.ac.uk, sam@stites.io, tychogrouwstra@gmail.com
 license:        MIT
-license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
 extra-source-files:
-    CHANGELOG.md
     README.md
     TODO.md
 
