@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6034ad8cab54f49b92b546eda87371f2698b264cea3a50fb281c1ae28def4c71
+-- hash: cba84cd5064b4e7d4917dc88b46b28aec7d0adeeab6bc005dff4547434cbf27f
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -28,18 +28,6 @@ source-repository head
   subdir: binding-hs
 
 library
-  hs-source-dirs:
-      src
-  default-extensions: OverloadedStrings
-  build-depends:
-      aeson >=1.3.1.1
-    , base >=4.11.1.0
-    , containers >=0.5.11.0
-    , invertible-syntax >=0.2.1
-    , servant >=0.13.0.1
-    , servant-client >=0.13.0.1
-    , servant-lucid >=0.8
-    , text >=1.2.3.0
   exposed-modules:
       Agents
       Agents.Random
@@ -48,17 +36,37 @@ library
       OpenAI.Gym.Data
   other-modules:
       Paths_gym_http_api
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings UnicodeSyntax
+  build-depends:
+      aeson >=1.3.1.1
+    , base >=4.11.1.0
+    , base-unicode-symbols
+    , containers >=0.5.11.0
+    , containers-unicode-symbols
+    , invertible-syntax >=0.2.1
+    , servant >=0.13.0.1
+    , servant-client >=0.13.0.1
+    , servant-lucid >=0.8
+    , stylish-haskell
+    , text >=1.2.3.0
   default-language: Haskell2010
 
 executable example
   main-is: Main.hs
+  other-modules:
+      Cli
+      Paths_gym_http_api
   hs-source-dirs:
       examples
-  default-extensions: OverloadedStrings
+  default-extensions: OverloadedStrings UnicodeSyntax
   build-depends:
       base >=4.11.1.0
+    , base-unicode-symbols
     , cmdargs >=0.10.20
     , containers >=0.5.11.0
+    , containers-unicode-symbols
     , exceptions >=0.10.0
     , extra >=1.6.6
     , gym-http-api
@@ -68,27 +76,28 @@ executable example
     , monad-control >=1.0.2.3
     , mtl >=2.2.2
     , servant-client >=0.13.0.1
+    , stylish-haskell
     , text >=1.2.3.0
     , transformers-base >=0.4.5.2
-  other-modules:
-      Cli
-      Paths_gym_http_api
   default-language: Haskell2010
 
 test-suite stack-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
+  other-modules:
+      Paths_gym_http_api
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings
+  default-extensions: OverloadedStrings UnicodeSyntax
   build-depends:
       HUnit >=1.6.0.0
     , aeson >=1.3.1.1
     , base >=4.11.1.0
+    , base-unicode-symbols
     , containers >=0.5.11.0
+    , containers-unicode-symbols
     , gym-http-api
     , servant-client >=0.13.0.1
+    , stylish-haskell
     , text >=1.2.3.0
-  other-modules:
-      Paths_gym_http_api
   default-language: Haskell2010

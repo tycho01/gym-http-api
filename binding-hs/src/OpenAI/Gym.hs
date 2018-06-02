@@ -13,6 +13,6 @@ module OpenAI.Gym
   , module OpenAI.Gym.Data
   ) where
 
-import OpenAI.Gym.API
-import OpenAI.Gym.Data
+import           OpenAI.Gym.API
+import           OpenAI.Gym.Data
 

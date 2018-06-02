@@ -7,7 +7,9 @@
 --
 -- Aeson-based data types to be returned by "OpenAI.Gym.API"
 -------------------------------------------------------------------------------
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric             #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE UnicodeSyntax             #-}
 module OpenAI.Gym.Data
   ( GymEnv (..)
   , InstID (..)
@@ -179,11 +181,10 @@ instance ToJSON Config
 type Agent = InstID -> ClientM ()
 
 -- | helper to parse a singleton object from aeson
-parseSingleton :: FromJSON a => (a -> b) -> Text -> Value -> AesonTypes.Parser b
+parseSingleton ∷ FromJSON a ⇒ (a → b) → Text → Value → AesonTypes.Parser b
 parseSingleton fn f (Object v) = fn <$> v .: f
 parseSingleton fn f _          = mempty
 
 -- | convert a value into a singleton object
-toSingleton :: ToJSON a => Text -> a -> Value
+toSingleton ∷ ToJSON a ⇒ Text → a → Value
 toSingleton f a = object [ f .= toJSON a ]
-
