@@ -26,7 +26,7 @@ stateDefault = -1
 -- | get CLI args. run with `--help` for info.
 getArgs ∷ IO CliArgs
 getArgs = cmdArgs CliArgs
-  {game = (show CartPoleV0) &= name "g" &= name "game" &= help "the name for the game to run"
+  {game = show CartPoleV0 &= name "g" &= name "game" &= help "the name for the game to run"
   -- ,state = stateDefault &= name "t" &= name "state" &= help "the initial state file to load, minus the extension"
   -- ,scenario = "scenario" &= name "s" &= name "scenario" &= help "the scenario file to load, minus the extension"
   -- ,record = False &= name "r" &= name "record" &= help "record bk2 movies"
