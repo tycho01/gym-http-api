@@ -1,28 +1,30 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE UnicodeSyntax      #-}
 {-# OPTIONS_GHC -fno-cse #-}
 module Cli (CliArgs(..), getArgs) where
 
-import System.Console.CmdArgs (Typeable, Data, cmdArgs, help, name, (&=))
-import OpenAI.Gym (GymEnv(..))
+import           OpenAI.Gym             (GymEnv (..))
+import           System.Console.CmdArgs (Data, Typeable, cmdArgs, help, name,
+                                         (&=))
 
 data CliArgs = CliArgs
-  {game :: String
+  {game    :: String
   -- ,state :: Int
   -- ,scenario :: String
   -- ,record :: Bool
   ,verbose :: Bool
-  ,quiet :: Bool
+  ,quiet   :: Bool
   -- ,ram :: Bool
-  ,agent :: String
+  ,agent   :: String
   }
   deriving (Show, Data, Typeable)
 
 -- | Gym constant for default initial game state
-stateDefault :: Int
+stateDefault ∷ Int
 stateDefault = -1
 
 -- | get CLI args. run with `--help` for info.
-getArgs :: IO CliArgs
+getArgs ∷ IO CliArgs
 getArgs = cmdArgs CliArgs
   {game = (show CartPoleV0) &= name "g" &= name "game" &= help "the name for the game to run"
   -- ,state = stateDefault &= name "t" &= name "state" &= help "the initial state file to load, minus the extension"

@@ -22,12 +22,15 @@ extra-source-files:
 
 default-extensions:
   - OverloadedStrings
+  - UnicodeSyntax
 
 dependencies:
   - base >= 4.11.1.0
   - servant-client >= 0.13.0.1
   - containers >= 0.5.11.0
   - text >= 1.2.3.0
+  - base-unicode-symbols
+  - containers-unicode-symbols
 
 library:
   source-dirs: src

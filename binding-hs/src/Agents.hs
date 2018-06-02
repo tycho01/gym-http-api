@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 -------------------------------------------------------------------------------
 -- |
 -- Module    :  Agents
@@ -13,11 +14,11 @@ module Agents
   , agents
   ) where
 
+import           Agents.Random
 import qualified Data.Map.Strict as Map
-import OpenAI.Gym (Agent)
-import Agents.Random
+import           OpenAI.Gym      (Agent)
 
-agents :: Map.Map String Agent
+agents ∷ Map.Map String Agent
 agents = Map.fromList [
     ("random", randomAgent)
   ]

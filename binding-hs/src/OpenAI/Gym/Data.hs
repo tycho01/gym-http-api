@@ -19,7 +19,7 @@ module OpenAI.Gym.Data
   , Action (..)
   , Monitor (..)
   , Config (..)
-  , Agent
+  , Agent (..)
   ) where
 
 import Prelude hiding (print, pure, (<*))
@@ -34,8 +34,8 @@ import Text.Syntax.Classes (pure)
 import Text.Syntax.Combinators ((<*))
 import Text.Syntax.Parser.Naive (Parser(..))
 import Text.Syntax.Printer.Naive (print)
-import Servant.API (ToHttpApiData(..))
 import Servant.Client (ClientM)
+import Servant.API (ToHttpApiData(..))
 import qualified Data.Text  as T()
 import qualified Data.Aeson as A()
 -- {-# ANN module "HLint: ignore Use camelCase" #-} -- silences hlint but won't compile...

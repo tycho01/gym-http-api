@@ -4,6 +4,7 @@ To run the example agent:
 
 ```
 python ../gym_http_server.py
+stylish-haskell
 hlint . --report
 stack haddock
 stack build && stack exec example
