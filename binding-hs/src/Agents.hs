@@ -10,15 +10,22 @@
 -------------------------------------------------------------------------------
 module Agents
   ( module Agents.Random
-  , Agent
+  , AnyAgentType
+  , AnyAgent
+  , AgentCtor
   , agents
   ) where
 
-import           Agents.Random
+import           Agents.Random   (RandomAgent (..))
 import qualified Data.Map.Strict as Map
-import           OpenAI.Gym      (Agent)
+import           OpenAI.Gym      (Agent, Info)
 
-agents ∷ Map.Map String Agent
+type AnyAgentType = RandomAgent
+type AnyAgent = AnyAgentType Info Info
+type AgentCtor = Info → Info → AnyAgent
+
+-- | a map of string identifiers to agents
+agents ∷ Map.Map String AgentCtor
 agents = Map.fromList [
-    ("random", randomAgent)
+    ("random", RandomAgent)
   ]

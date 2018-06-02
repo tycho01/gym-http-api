@@ -1,5 +1,4 @@
 ## Checklist
-- [ ] experiment
 - [ ] space
 - [~] agents
 - [ ] TensorFlow

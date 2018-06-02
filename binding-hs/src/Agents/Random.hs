@@ -8,22 +8,16 @@
 --
 -- agent that acts randomly
 -------------------------------------------------------------------------------
-module Agents.Random (randomAgent) where
+module Agents.Random (RandomAgent (..)) where
 
-import OpenAI.Gym (Action(..), Environment(..), GymEnv(..), InstID(..), Outcome(..), Step(..), envReset, envStep, envActionSpaceInfo, envActionSpaceSample, envActionSpaceContains, envObservationSpaceInfo)
-import Servant.Client (ClientM)
-import Control.Monad (replicateM_, when)
+import           OpenAI.Gym (Action (..), Agent (..), Info (..),
+                             envActionSpaceSample)
 
--- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`
-randomAgent :: InstID -> ClientM ()
-randomAgent inst = do
-  envReset inst -- first close monitor
-  go 0 False
-  where
-    maxSteps = 200
-    reward = 0
-    go :: Int -> Bool -> ClientM ()
-    go x done = do
-      Action a <- envActionSpaceSample inst
-      Outcome ob reward done _ <- envStep inst (Step a True)
-      when (not done && x < maxSteps) $ go (x + 1) done
+-- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`: $a_{random} \in A$
+-- data RandomAgent = RandomAgent
+-- data RandomAgent Info Info = RandomAgent actionSpace obsSpace
+data RandomAgent actionSpace obsSpace = RandomAgent Info Info -- where
+-- data D ab where
+--   D :: (a -> b) -> D '(a, b)
+instance Agent (RandomAgent actionSpace obsSpace) where
+  act (RandomAgent actionSpace obsSpace) ob t inst = envActionSpaceSample inst

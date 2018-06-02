@@ -22,24 +22,26 @@ module OpenAI.Gym.Data
   , Monitor (..)
   , Config (..)
   , Agent (..)
+  -- , AnyAgent
   ) where
 
-import Prelude hiding (print, pure, (<*))
-import Data.Aeson (ToJSON(..), FromJSON(..), Value(..), Object, (.=), (.:), object)
-import qualified Data.Aeson.Types as AesonTypes -- (Parser as AesonParser)
-import Data.Map.Strict (Map)
-import Data.Text (Text)
-import Data.Maybe (fromJust)
-import GHC.Generics (Generic)
-import Text.Syntax (Syntax, text, (<|>))
-import Text.Syntax.Classes (pure)
-import Text.Syntax.Combinators ((<*))
-import Text.Syntax.Parser.Naive (Parser(..))
-import Text.Syntax.Printer.Naive (print)
-import Servant.Client (ClientM)
-import Servant.API (ToHttpApiData(..))
-import qualified Data.Text  as T()
-import qualified Data.Aeson as A()
+import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
+                                            Value (..), object, (.:), (.=))
+import qualified Data.Aeson                as A ()
+import qualified Data.Aeson.Types          as AesonTypes
+import           Data.Map.Strict           (Map)
+import           Data.Maybe                (fromJust)
+import           Data.Text                 (Text)
+import qualified Data.Text                 as T ()
+import           GHC.Generics              (Generic)
+import           Prelude                   hiding (print, pure, (<*))
+import           Servant.API               (ToHttpApiData (..))
+import           Servant.Client            (ClientM)
+import           Text.Syntax               (Syntax, text, (<|>))
+import           Text.Syntax.Classes       (pure)
+import           Text.Syntax.Combinators   ((<*))
+import           Text.Syntax.Parser.Naive  (Parser (..))
+import           Text.Syntax.Printer.Naive (print)
 -- {-# ANN module "HLint: ignore Use camelCase" #-} -- silences hlint but won't compile...
 
 -- runParser :: ? a => Parser a -> String -> [(a, String)]
@@ -178,7 +180,22 @@ data Config = Config
 instance ToJSON Config
 
 
-type Agent = InstID -> ClientM ()
+
+-- | an agent as described in the reinforcement learning literature
+class Agent agent where
+  -- act :: Monad m => agent -> Observation -> Int -> m Action
+  -- learn :: Monad m => agent -> Observation -> Action -> Double -> Observation -> Bool -> Int -> Info -> m ()
+  -- actionSpace ∷ agent → Info
+  -- obsSpace ∷ agent → Info
+  act ∷ agent → Observation → Int → InstID → ClientM Action
+  learn ∷ agent → Observation → Action → Double → Observation → Bool → Int → Info → ClientM ()
+  learn agent ob ac reward ob_ done t info = return ()
+
+-- -- | a type yielding the union of any Agent implementation
+-- data AnyAgent = forall a . Agent a ⇒ AnyAgent a
+-- instance Agent AnyAgent where
+--   act (AnyAgent a) ob t inst = act a ob t inst
+--   learn (AnyAgent a) ob ac reward ob_ done t info = learn a ob ac reward ob_ done t info
 
 -- | helper to parse a singleton object from aeson
 parseSingleton ∷ FromJSON a ⇒ (a → b) → Text → Value → AesonTypes.Parser b
