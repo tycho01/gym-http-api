@@ -66,7 +66,7 @@ data GymEnv
   | Airstriker
   deriving (Eq, Enum, Ord)
 
-gymEnv :: Syntax f => f GymEnv
+gymEnv ∷ Syntax f ⇒ f GymEnv
 gymEnv =  pure CartPoleV0               <* text "CartPole-v0"
       <|> pure CartPoleV1               <* text "CartPole-v1"
       <|> pure AcrobotV1                <* text "Acrobot-v1"
