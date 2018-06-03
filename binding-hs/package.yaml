@@ -23,6 +23,7 @@ extra-source-files:
 default-extensions:
   - OverloadedStrings
   - UnicodeSyntax
+  - QuasiQuotes
 
 dependencies:
   - base >= 4.11.1.0
@@ -57,6 +58,8 @@ executables:
     - lifted-base >= 0.2.3.12
     - monad-control >= 1.0.2.3
     - hslogger >= 1.2.10
+    - dump >= 0.2.8
+    - ansi-terminal >= 0.8.0.4
 
 tests:
   stack-test:
