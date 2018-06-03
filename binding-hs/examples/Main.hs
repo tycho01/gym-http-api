@@ -88,7 +88,7 @@ runExp gymEnv agentType = do
   exp
 
   where
-    episodeCount = 100
+    episodeCount = 10
     maxSteps = 200
 
 -- | an experiment for an agent, an environment
