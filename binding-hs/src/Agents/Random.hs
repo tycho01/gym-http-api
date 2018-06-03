@@ -10,14 +10,10 @@
 -------------------------------------------------------------------------------
 module Agents.Random (RandomAgent (..)) where
 
-import           OpenAI.Gym (Action (..), Agent (..), Info (..),
-                             envActionSpaceSample)
+import           OpenAI.Gym (Action (..), ActionSpace, Agent (..), Info (..),
+                             ObservationSpace, envActionSpaceSample)
 
 -- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`: $a_{random} \in A$
--- data RandomAgent = RandomAgent
--- data RandomAgent Info Info = RandomAgent actionSpace obsSpace
-data RandomAgent actionSpace obsSpace = RandomAgent Info Info -- where
--- data D ab where
---   D :: (a -> b) -> D '(a, b)
+data RandomAgent actionSpace obsSpace = RandomAgent ActionSpace ObservationSpace
 instance Agent (RandomAgent actionSpace obsSpace) where
   act (RandomAgent actionSpace obsSpace) ob t inst = envActionSpaceSample inst

@@ -33,15 +33,15 @@ module OpenAI.Gym.API (
   , gymAPI
   ) where
 
-import           Data.Aeson         (Object)
 import           Data.Proxy         (Proxy (..))
 import           Servant.API        ((:<|>) (..), (:>), Capture, Get, JSON,
                                      MimeUnrender, Post, ReqBody, mimeUnrender)
 import           Servant.Client     (ClientM, client)
 import           Servant.HTML.Lucid (HTML)
 
-import           OpenAI.Gym.Data    (Action, Config, Environment, GymEnv, Info,
-                                     InstID, Monitor, Observation, Outcome,
+import           OpenAI.Gym.Data    (Action, ActionSpace, Config, Environment,
+                                     GymEnv, InstID, Monitor, Observation,
+                                     ObservationSpace, Outcome, SpaceContains,
                                      Step)
 
 -- | Servant description of OpenAI's Gym HTTP API
@@ -50,10 +50,10 @@ type GymAPI
                      :<|> Get '[JSON] Environment
                      :<|> Capture "instance_id" InstID :> "reset" :> Post '[JSON] Observation
                      :<|> Capture "instance_id" InstID :> "step"  :> ReqBody '[JSON] Step :> Post '[JSON] Outcome
-                     :<|> Capture "instance_id" InstID :> "action_space" :> Get '[JSON] Info
+                     :<|> Capture "instance_id" InstID :> "action_space" :> Get '[JSON] ActionSpace
                      :<|> Capture "instance_id" InstID :> "action_space" :> "sample"   :> Get '[JSON] Action
-                     :<|> Capture "instance_id" InstID :> "action_space" :> "contains" :> Capture "x" Int :> Get '[JSON] Object
-                     :<|> Capture "instance_id" InstID :> "observation_space"  :> Get '[JSON] Info
+                     :<|> Capture "instance_id" InstID :> "action_space" :> "contains" :> Capture "x" Int :> Get '[JSON] SpaceContains
+                     :<|> Capture "instance_id" InstID :> "observation_space"  :> Get '[JSON] ObservationSpace
                      :<|> Capture "instance_id" InstID :> "monitor" :> "start" :> ReqBody '[JSON] Monitor :> Post '[HTML] ()
                      :<|> Capture "instance_id" InstID :> "monitor" :> "close" :> Post '[HTML] ()
                      :<|> Capture "instance_id" InstID :> "close"   :> Post '[HTML] ())
@@ -79,16 +79,16 @@ envReset ∷ InstID → ClientM Observation
 envStep ∷ InstID → Step → ClientM Outcome
 
 -- | Get information (name and dimensions\/bounds) of the env's action_space (@GET \/v1\/envs\/<instance_id>\/action_space\/@)
-envActionSpaceInfo ∷ InstID → ClientM Info
+envActionSpaceInfo ∷ InstID → ClientM ActionSpace
 
 -- | Sample randomly from the env's action_space (@GET \/v1\/envs\/<instance_id>\/action_space\/sample@)
 envActionSpaceSample ∷ InstID → ClientM Action
 
 -- | Check to see if a value is valid in the env's action_space (@GET \/v1\/envs\/<instance_id>\/action_space\/contains\/<x>@)
-envActionSpaceContains ∷ InstID → Int → ClientM Object
+envActionSpaceContains ∷ InstID → Int → ClientM SpaceContains
 
 -- | Get information (name and dimensions\/bounds) of the env's observation_space (@GET \/v1\/envs\/<instance_id>\/observation_space\/@)
-envObservationSpaceInfo ∷ InstID → ClientM Info -- ActionSpace
+envObservationSpaceInfo ∷ InstID → ClientM ObservationSpace
 
 -- | Start monitoring (@POST \/v1\/envs\/<instance_id>\/monitor\/start\/@)
 envMonitorStart ∷ InstID → Monitor → ClientM ()

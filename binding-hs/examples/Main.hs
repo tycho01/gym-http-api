@@ -102,7 +102,7 @@ experiment agent inst maxSteps = do
     -- go :: Monad m => Int -> Bool -> Observation -> m ()
     go ∷ Int → Bool → Observation → ClientM ()
     go t done ob = do
-      Action ac <- act agent ob t inst
-      Outcome ob' reward done info <- envStep inst (Step ac True)
-      learn agent ob (Action ac) reward (Observation ob') done t (Info info)
-      when (not done && t < maxSteps) $ go (t + 1) done (Observation ob')
+      ac <- act agent ob t inst
+      Outcome ob' reward done info <- envStep inst $ Step ac True
+      learn agent ob ac reward (Observation ob') done t info
+      when (not done && t < maxSteps) $ go (t + 1) done $ Observation ob'

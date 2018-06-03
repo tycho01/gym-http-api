@@ -7,10 +7,13 @@
 --
 -- Aeson-based data types to be returned by "OpenAI.Gym.API"
 -------------------------------------------------------------------------------
-{-# LANGUAGE DeriveGeneric             #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE ScopedTypeVariables       #-}
-{-# LANGUAGE UnicodeSyntax             #-}
+
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE ExistentialQuantification  #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE UnicodeSyntax              #-}
+
 module OpenAI.Gym.Data
   ( GymEnv (..)
   , InstID (..)
@@ -126,9 +129,21 @@ newtype Environment = Environment { all_envs :: Map Text Text }
 instance ToJSON Environment
 instance FromJSON Environment
 
-newtype ActionSpace = ActionSpace Space
+newtype ActionSpace = ActionSpace SpaceInfo
+    deriving (Show, ToJSON, FromJSON)
 
-newtype ObservationSpace = ObservationSpace Space
+newtype ObservationSpace = ObservationSpace SpaceInfo
+    deriving (Show, ToJSON, FromJSON)
+
+-- | an info object describing the space's dimensions and type
+newtype SpaceInfo = SpaceInfo { getSpaceInfo :: Space }
+  deriving (Eq, Show, Generic)
+
+instance ToJSON SpaceInfo where
+  toJSON (SpaceInfo v) = toSingleton "info" v
+
+instance FromJSON SpaceInfo where
+  parseJSON = parseSingleton SpaceInfo "info"
 
 -- | The agent's observation of the current environment
 newtype Observation = Observation { getObservation :: Value }
@@ -138,11 +153,11 @@ instance ToJSON Observation where
   toJSON (Observation v) = toSingleton "observation" v
 
 instance FromJSON Observation where
-  parseJSON = parseSingleton Observation "observation"
+  parseJSON v = return $ Observation v
 
 -- | An action to take in the environment and whether or not to render that change
 data Step = Step
-  { action :: !Value
+  { action :: !Action
   , render :: !Bool -- not respected by server
   } deriving (Eq, Generic, Show)
 
@@ -150,34 +165,28 @@ instance ToJSON Step
 
 -- | The result of taking a step in an environment
 data Outcome = Outcome
-  { observation :: !Value  -- ^ agent's observation of the current environment
+  { observation :: !Value  -- ^ agent's observation of the current environment, Observation unwrapped for serialization purposes, as other end-points yielding Observation do wrap it
   , reward      :: !Double -- ^ amount of reward returned after previous action
   , done        :: !Bool   -- ^ whether the episode has ended
-  , info        :: !Object -- ^ a dict containing auxiliary diagnostic information
+  , info        :: !Info -- ^ a dict containing auxiliary diagnostic information
   } deriving (Eq, Show, Generic)
 
 instance ToJSON Outcome
 instance FromJSON Outcome
 
 -- | A dict containing auxiliary diagnostic information
-newtype Info = Info { getInfo :: Object }
-  deriving (Eq, Show, Generic)
-
-instance ToJSON Info where
-  toJSON (Info v) = toSingleton "info" v
-
-instance FromJSON Info where
-  parseJSON = parseSingleton Info "info"
+newtype Info = Info Object
+  deriving (Eq, Show, Generic, ToJSON, FromJSON)
 
 -- | An action to take in the environment
 newtype Action = Action { getAction :: Value }
   deriving (Eq, Show, Generic)
 
 instance ToJSON Action where
-  toJSON (Action v) = toSingleton "action" v
+  toJSON (Action v) = toJSON v -- as used in envStep, unwrapped
 
 instance FromJSON Action where
-  parseJSON = parseSingleton Action "action"
+  parseJSON = parseSingleton Action "action" -- as used in envActionSpaceSample, unwrapped
 
 -- | Parameters used to start a monitoring session.
 data Monitor = Monitor
@@ -207,7 +216,8 @@ instance ToJSON Config
 data Space =
     Discrete
       { n     :: Int
-      -- , shape :: [Int]
+      -- , shape :: [Int] -- []
+      -- , dtype :: Int64
       }
   | MultiBinary
       { n     :: Int
@@ -305,28 +315,46 @@ data DType =
   | UInt16
   | UInt32
   | UInt64
-  deriving (Eq, Show)
+  | Float8
+  | Float16
+  | Float32
+  | Float64
+  deriving (Eq)
 
-instance ToJSON DType where
-  toJSON Int8   = "int8"
-  toJSON Int16  = "int16"
-  toJSON Int32  = "int32"
-  toJSON Int64  = "int64"
-  toJSON UInt8  = "uint8"
-  toJSON UInt16 = "uint16"
-  toJSON UInt32 = "uint32"
-  toJSON UInt64 = "uint64"
+serdeDType ∷ Syntax f ⇒ f DType
+serdeDType =  pure Int8 <* text "int8"
+          <|> pure Int16 <* text "int16"
+          <|> pure Int32 <* text "int32"
+          <|> pure Int64 <* text "int64"
+          <|> pure UInt8 <* text "uint8"
+          <|> pure UInt16 <* text "uint16"
+          <|> pure UInt32 <* text "uint32"
+          <|> pure UInt64 <* text "uint64"
+          <|> pure Float8 <* text "float"
+          <|> pure Float16 <* text "float16"
+          <|> pure Float32 <* text "float32"
+          <|> pure Float64 <* text "float64"
+
+instance Show DType where show = fromJust . print serdeDType
+instance Read DType where readsPrec _ = runParser serdeDType
+instance ToJSON DType where toJSON = String . pack . show
 
 instance FromJSON DType where
   parseJSON = withText "DType" $ \s -> return $ case s of
-    "int8"   -> Int8
-    "int16"  -> Int16
-    "int32"  -> Int32
-    "int64"  -> Int64
-    "uint8"  -> UInt8
-    "uint16" -> UInt16
-    "uint32" -> UInt32
-    "uint64" -> UInt64
+    "int8"    -> Int8
+    "int16"   -> Int16
+    "int32"   -> Int32
+    "int64"   -> Int64
+    "uint8"   -> UInt8
+    "uint16"  -> UInt16
+    "uint32"  -> UInt32
+    "uint64"  -> UInt64
+    "float"   -> Float8
+    "float16" -> Float16
+    "float32" -> Float32
+    "float64" -> Float64
+
+-- instance FromJSON DType where parseJSON = withText "DType" $ \x -> readsPrec x
 
 -- | an agent as described in the reinforcement learning literature
 class Agent agent where
