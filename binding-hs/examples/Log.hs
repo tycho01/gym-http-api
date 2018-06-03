@@ -19,10 +19,6 @@ intensityToCode intensity = case intensity of
 
 loggerName = rootLoggerName -- "Gym Agent"
 
--- | log Showable
-logThing :: (MonadIO m, Show a) => Priority -> a -> m ()
-logThing lvl = liftIO . logM loggerName lvl . show
-
 -- | log stuff, incl. variables like [d|foo, bar|]
 say ∷ MonadIO m ⇒ Priority → String → m ()
 say lvl msg = liftIO $ logM loggerName lvl $ colorize colorCode msg
