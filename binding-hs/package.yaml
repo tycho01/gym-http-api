@@ -42,6 +42,7 @@ library:
   - servant >= 0.13.0.1
   - servant-lucid >= 0.8
   - invertible-syntax >= 0.2.1
+  - unordered-containers >= 0.2.9.0
 
 executables:
   example:

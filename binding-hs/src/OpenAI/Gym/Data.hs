@@ -9,6 +9,7 @@
 -------------------------------------------------------------------------------
 {-# LANGUAGE DeriveGeneric             #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE ScopedTypeVariables       #-}
 {-# LANGUAGE UnicodeSyntax             #-}
 module OpenAI.Gym.Data
   ( GymEnv (..)
@@ -22,17 +23,25 @@ module OpenAI.Gym.Data
   , Monitor (..)
   , Config (..)
   , Agent (..)
+  , Space (..)
+  , DType (..)
   -- , AnyAgent
+  , ActionSpace
+  , ObservationSpace
+  , SpaceContains
   ) where
 
 import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
                                             Value (..), object, (.:), (.=))
 import qualified Data.Aeson                as A ()
-import qualified Data.Aeson.Types          as AesonTypes
-import           Data.Map.Strict           (Map)
+import           Data.Aeson.Types          (Parser, withEmbeddedJSON,
+                                            withObject, withText)
+import           Data.HashMap.Strict       (HashMap, fromList)
+import           Data.Map.Strict           (Map, map, mapKeys, toList)
 import           Data.Maybe                (fromJust)
-import           Data.Text                 (Text)
+import           Data.Text                 (Text, pack)
 import qualified Data.Text                 as T ()
+import           GHC.Exts                  (fromList)
 import           GHC.Generics              (Generic)
 import           Prelude                   hiding (print, pure, (<*))
 import           Servant.API               (ToHttpApiData (..))
@@ -100,12 +109,26 @@ instance ToJSON InstID where
 instance FromJSON InstID where
   parseJSON = parseSingleton InstID "instance_id"
 
+-- | whether the value belongs to the action_space
+newtype SpaceContains = SpaceContains { getSpaceContains :: Bool }
+  deriving (Eq, Show, Generic)
+
+instance ToJSON SpaceContains where
+  toJSON (SpaceContains b) = toSingleton "member" b
+
+instance FromJSON SpaceContains where
+  parseJSON = parseSingleton SpaceContains "member"
+
 -- | a mapping of instance_id to env_id (e.g. {'3c657dbc': 'CartPole-v0'}) for every env on the server
 newtype Environment = Environment { all_envs :: Map Text Text }
   deriving (Eq, Show, Generic)
 
 instance ToJSON Environment
 instance FromJSON Environment
+
+newtype ActionSpace = ActionSpace Space
+
+newtype ObservationSpace = ObservationSpace Space
 
 -- | The agent's observation of the current environment
 newtype Observation = Observation { getObservation :: Value }
@@ -180,6 +203,130 @@ data Config = Config
 instance ToJSON Config
 
 
+-- shape, dtype, n/low/high
+data Space =
+    Discrete
+      { n     :: Int
+      -- , shape :: [Int]
+      }
+  | MultiBinary
+      { n     :: Int
+      -- , shape :: [Int]
+      }
+  | MultiDiscrete
+      { nvec :: [Int]
+      }
+  | Box
+      { shape :: [Int]
+      , low   :: [Double]
+      , high  :: [Double]
+      , dtype :: DType
+      }
+  | HighLow
+      { num_rows :: Int
+      , matrix   :: [Double] -- nested?
+      }
+  | TupleSpace [Space]
+  | DictSpace (Map String Space)
+  deriving (Eq, Show)
+
+instance ToJSON Space where
+  toJSON (Discrete n) = object -- shape
+    [ "name" .= ("Discrete" :: String)
+    , "n" .= n
+    -- , "shape" .= shape
+    ]
+  toJSON (MultiBinary n) = object -- shape
+    [ "name" .= ("MultiBinary" :: String)
+    , "n" .= n
+    -- , "shape" .= shape
+    ]
+  toJSON (MultiDiscrete nvec) = object
+    [ "name" .= ("MultiDiscrete" :: String)
+    , "nvec" .= nvec
+    ]
+  toJSON (Box shape low high dtype) = object
+    [ "name" .= ("Box" :: String)
+    , "shape" .= shape
+    , "low" .= low
+    , "high" .= high
+    , "dtype" .= dtype
+    ]
+  toJSON (HighLow num_rows matrix) = object
+    [ "name" .= ("HighLow" :: String)
+    , "num_rows" .= num_rows
+    , "matrix" .= matrix
+    ]
+  toJSON (TupleSpace spaces) = object
+    [ "name" .= ("Tuple" :: String)
+    , "spaces" .= (Array $ GHC.Exts.fromList $ toJSON <$> spaces)
+    ]
+  toJSON (DictSpace spaces) = object
+    [ "name" .= ("Dict" :: String)
+    , "spaces" .= (Object $ Data.HashMap.Strict.fromList $ toList $
+                    mapKeys pack $ Data.Map.Strict.map toJSON spaces)
+    ]
+
+instance FromJSON Space where
+  parseJSON = withObject "Space" $ \v -> do
+    name <- v .: "name"
+    let f = case name of
+              "Discrete" -> \o -> Discrete
+                <$> o .: "n"
+                -- <*> o .: "shape"
+              "MultiBinary" -> \o -> MultiBinary
+                <$> o .: "n"
+                -- <*> o .: "shape"
+              "MultiDiscrete" -> \o -> MultiDiscrete
+                <$> o .: "nvec"
+              "Box" -> \o -> Box
+                <$> o .: "shape"
+                <*> o .: "low"
+                <*> o .: "high"
+                <*> o .: "dtype"
+              "HighLow" -> \o -> HighLow
+                <$> o .: "num_rows"
+                <*> o .: "matrix"
+              "TupleSpace" -> \o -> TupleSpace
+                <$> o .: "spaces"
+              "DictSpace" -> \o -> DictSpace
+                <$> o .: "spaces"
+    withObject name f $ Object v
+
+-- | a Numpy `dtype`, see:
+-- - https://github.com/numpy/numpy/blob/master/numpy/doc/basics.py
+-- - https://github.com/numpy/numpy/blob/master/numpy/core/numerictypes.py
+data DType =
+    Int8
+  | Int16
+  | Int32
+  | Int64
+  | UInt8
+  | UInt16
+  | UInt32
+  | UInt64
+  deriving (Eq, Show)
+
+instance ToJSON DType where
+  toJSON Int8   = "int8"
+  toJSON Int16  = "int16"
+  toJSON Int32  = "int32"
+  toJSON Int64  = "int64"
+  toJSON UInt8  = "uint8"
+  toJSON UInt16 = "uint16"
+  toJSON UInt32 = "uint32"
+  toJSON UInt64 = "uint64"
+
+instance FromJSON DType where
+  parseJSON = withText "DType" $ \s -> return $ case s of
+    "int8"   -> Int8
+    "int16"  -> Int16
+    "int32"  -> Int32
+    "int64"  -> Int64
+    "uint8"  -> UInt8
+    "uint16" -> UInt16
+    "uint32" -> UInt32
+    "uint64" -> UInt64
 
 -- | an agent as described in the reinforcement learning literature
 class Agent agent where
@@ -198,7 +345,7 @@ class Agent agent where
 --   learn (AnyAgent a) ob ac reward ob_ done t info = learn a ob ac reward ob_ done t info
 
 -- | helper to parse a singleton object from aeson
-parseSingleton ∷ FromJSON a ⇒ (a → b) → Text → Value → AesonTypes.Parser b
+parseSingleton ∷ FromJSON a ⇒ (a → b) → Text → Value → Data.Aeson.Types.Parser b
 parseSingleton fn f (Object v) = fn <$> v .: f
 parseSingleton fn f _          = mempty
 
