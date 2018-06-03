@@ -10,7 +10,7 @@ stack haddock
 stack build && stack exec example
 stack build --file-watch
 stack test --file-watch
-stack exec example -- -a random --game Airstriker-Genesis
+stack exec example -- -v -a random --game CartPole-v0
 ```
 
 This library provides a servant-based REST client to the gym open-source library.
