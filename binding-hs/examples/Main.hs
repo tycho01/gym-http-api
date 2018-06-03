@@ -10,7 +10,6 @@ import qualified Data.Map.Strict          as Map
 import           Data.Maybe               (fromMaybe, listToMaybe)
 import qualified Data.Text                as T
 import           Network.HTTP.Client      (defaultManagerSettings, newManager)
-import           Prelude                  hiding (log)
 import           Servant.Client           (BaseUrl (..), ClientEnv (..),
                                            ClientM, Scheme (Http), runClientM)
 import           System.Environment       (lookupEnv)
@@ -20,7 +19,7 @@ import           Text.Read                (readMaybe)
 import           Agents                   (AgentCtor, AnyAgent, AnyAgentType,
                                            agents)
 import           Cli                      (CliArgs (..), getArgs)
-import Log (log, loggerName)
+import Log (say, loggerName)
 import           OpenAI.Gym               (Action (..), Agent (..), Config (..),
                                            Environment (..), GymEnv (..),
                                            Info (..), InstID (..), Monitor (..),
@@ -34,6 +33,7 @@ import           OpenAI.Gym               (Action (..), Agent (..), Config (..),
                                            envStep, shutdownServer, upload)
 import Debug.Dump (d)
 
+
 defaultGame = CartPoleV0
 
 -- | main function, run `example` given CLI args + env vars
@@ -46,12 +46,12 @@ main = do
         | quiet = WARNING
         | otherwise = INFO
   updateGlobalLogger loggerName $ setLevel logLvl
-  log INFO $ [d|logLvl|]
+  say INFO $ [d|logLvl|]
 
   gymEnv :: GymEnv <- case readMaybe game of
                 Just env -> return env
                 Nothing -> do
-                  log ERROR "unknown game"
+                  say ERROR "unknown game"
                   return defaultGame -- default
 
   let agentType = agents Map.! agent
@@ -59,7 +59,7 @@ main = do
   let client = runExp gymEnv agentType :: ClientM ()
   out <- runClientM client $ ClientEnv manager url Nothing
   case out of
-    Left err -> log ERROR [d|err|]
+    Left err -> say ERROR [d|err|]
     Right _  -> return ()
 
   where
@@ -68,21 +68,21 @@ main = do
 -- | get game env, run n episodes
 runExp ∷ GymEnv → AgentCtor → ClientM ()
 runExp gymEnv agentType = do
-  log INFO [d|gymEnv|]
   envs <- all_envs <$> envListAll
-  log INFO [d|envs|]
   let gameIds = Map.filter (== (T.pack $ show gymEnv)) envs
-  log INFO [d|gameIds|]
   let maybeId = listToMaybe $ map InstID $ Map.keys gameIds
   inst <- case maybeId of
           -- reuse existing env
           Just instId -> return instId
           Nothing     -> envCreate gymEnv
-  log INFO [d|inst|]
   actionSpace <- envActionSpaceInfo inst
-  log INFO [d|actionSpace|]
   obsSpace <- envObservationSpaceInfo inst
-  log INFO [d|obsSpace|]
+  say DEBUG [d| gymEnv |]
+  say DEBUG [d| envs |]
+  say DEBUG [d| gameIds |]
+  say DEBUG [d| inst |]
+  say INFO [d| actionSpace |]
+  say INFO [d| obsSpace |]
   let agent = agentType actionSpace obsSpace
   let exp = replicateM_ episodeCount $ experiment agent inst maxSteps
   exp
