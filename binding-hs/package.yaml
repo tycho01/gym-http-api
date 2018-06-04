@@ -18,7 +18,6 @@ description:
   which is the actively-maintained haskell fork.
 extra-source-files:
   - README.md
-  - TODO.md
 
 default-extensions:
   - OverloadedStrings

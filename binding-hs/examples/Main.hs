@@ -46,7 +46,7 @@ main = do
         | quiet = WARNING
         | otherwise = INFO
   updateGlobalLogger loggerName $ setLevel logLvl
-  say INFO $ [d|logLvl|]
+  say INFO [d|logLvl|]
 
   gymEnv :: GymEnv <- case readMaybe game of
                 Just env -> return env
