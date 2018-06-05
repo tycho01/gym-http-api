@@ -17,7 +17,7 @@ stack exec example -- -v -a random --game CartPole-v0
 
 - placeholders
 - actions/observations
-- TensorFlow
+- TensorFlow/HaskTorch/hmatrix
 - agents
   - baselines
   - retro-baselines
