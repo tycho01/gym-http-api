@@ -24,13 +24,13 @@ import           OpenAI.Gym               (Action (..), Agent (..), Config (..),
                                            Environment (..), GymEnv (..),
                                            Info (..), InstID (..), Monitor (..),
                                            Observation (..), Outcome (..),
-                                           Step (..), envActionSpaceContains,
+                                           Step (..), EnvSpec (..), envActionSpaceContains,
                                            envActionSpaceInfo,
                                            envActionSpaceSample, envClose,
                                            envCreate, envListAll,
                                            envMonitorClose, envMonitorStart,
                                            envObservationSpaceInfo, envReset,
-                                           envStep, shutdownServer, upload)
+                                           envStep, shutdownServer, upload, envSpec)
 import Debug.Dump (d)
 
 
@@ -74,20 +74,20 @@ runExp gymEnv agentType = do
           Just instId -> return instId
           Nothing     -> envCreate gymEnv
   actionSpace <- envActionSpaceInfo inst
+  spec <- envSpec inst
+  let maxSteps = max_episode_steps spec
+  let episodeCount = trials spec
   obsSpace <- envObservationSpaceInfo inst
   say DEBUG [d| gymEnv |]
   say DEBUG [d| envs |]
   say DEBUG [d| gameIds |]
   say DEBUG [d| inst |]
+  say INFO [d| spec |]
   say INFO [d| actionSpace |]
   say INFO [d| obsSpace |]
-  let agent = agentType actionSpace obsSpace
+  let agent = agentType spec actionSpace obsSpace
   let exp = replicateM_ episodeCount $ experiment agent inst maxSteps
   exp
-
-  where
-    episodeCount = 10
-    maxSteps = 200
 
 -- | an experiment for an agent, an environment
 -- experiment :: Monad m => AnyAgent -> InstID -> Int -> m ()

@@ -18,11 +18,11 @@ module Agents
 
 import           Agents.Random   (RandomAgent (..))
 import qualified Data.Map.Strict as Map
-import           OpenAI.Gym      (ActionSpace, Agent, ObservationSpace)
+import           OpenAI.Gym      (ActionSpace, Agent, EnvSpec, ObservationSpace)
 
 type AnyAgentType = RandomAgent
-type AnyAgent = AnyAgentType ActionSpace ObservationSpace
-type AgentCtor = ActionSpace → ObservationSpace → AnyAgent
+type AnyAgent = AnyAgentType EnvSpec ActionSpace ObservationSpace
+type AgentCtor = EnvSpec → ActionSpace → ObservationSpace → AnyAgent
 
 -- | a map of string identifiers to agents
 agents ∷ Map.Map String AgentCtor

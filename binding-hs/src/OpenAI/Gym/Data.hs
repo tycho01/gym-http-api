@@ -32,6 +32,7 @@ module OpenAI.Gym.Data
   , ActionSpace
   , ObservationSpace
   , SpaceContains
+  , EnvSpec (..)
   ) where
 
 import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
@@ -177,6 +178,40 @@ instance FromJSON Outcome
 -- | A dict containing auxiliary diagnostic information
 newtype Info = Info Object
   deriving (Eq, Show, Generic, ToJSON, FromJSON)
+
+-- | A specification containing meta data about an environment
+-- newtype EnvSpec = EnvSpec Object
+data EnvSpec = EnvSpec
+  { id                  :: String -- ^ e.g. 'CartPole-v0'
+  , trials              :: Int -- ^ e.g. 100
+  , reward_threshold    :: Double -- ^ e.g. 195.0
+  , nondeterministic    :: Bool -- ^ e.g. False
+  , tags                :: Object -- ^ e.g. {'wrapper_config.TimeLimit.max_episode_steps': 200}
+  , max_episode_steps   :: Int -- ^ e.g. 200
+  , max_episode_seconds :: Maybe Double -- ^ e.g. None
+  , _env_name           :: String -- ^ e.g. 'CartPole'
+  , _entry_point        :: String -- ^ e.g. 'gym.envs.classic_control:CartPoleEnv'
+  , _local_only         :: Bool -- ^ e.g. False
+  , _kwargs             :: Object -- ^ e.g. {}
+  }
+  deriving (Eq, Show)
+
+instance FromJSON EnvSpec where
+  parseJSON = withObject "EnvSpec" $ \v -> do
+    spec <- v .: "spec"
+    let f = \o -> EnvSpec
+                    <$> o .: "id"
+                    <*> o .: "trials"
+                    <*> o .: "reward_threshold"
+                    <*> o .: "nondeterministic"
+                    <*> o .: "tags"
+                    <*> o .: "max_episode_steps"
+                    <*> o .: "max_episode_seconds"
+                    <*> o .: "_env_name"
+                    <*> o .: "_entry_point"
+                    <*> o .: "_local_only"
+                    <*> o .: "_kwargs"
+    withObject "spec" f $ Object spec
 
 -- | An action to take in the environment
 newtype Action = Action { getAction :: Value }

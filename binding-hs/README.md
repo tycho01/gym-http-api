@@ -15,7 +15,6 @@ stack exec example -- -v -a random --game CartPole-v0
 
 ## TODO
 
-- placeholders
 - actions/observations
 - TensorFlow/HaskTorch/hmatrix
 - agents
@@ -46,7 +45,6 @@ stack exec example -- -v -a random --game CartPole-v0
   - optimizers
     - Ray RLlib
     - SLM-Lab
-- env spec
 - contest
 - [exploration sampling](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)#Query_strategies)
 - NN optimizers

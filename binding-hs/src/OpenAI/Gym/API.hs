@@ -23,6 +23,7 @@ module OpenAI.Gym.API (
   , envActionSpaceSample
   , envActionSpaceContains
   , envObservationSpaceInfo
+  , envSpec
   , envMonitorStart
   , envMonitorClose
   , envClose
@@ -39,10 +40,10 @@ import           Servant.API        ((:<|>) (..), (:>), Capture, Get, JSON,
 import           Servant.Client     (ClientM, client)
 import           Servant.HTML.Lucid (HTML)
 
-import           OpenAI.Gym.Data    (Action, ActionSpace, Config, Environment,
-                                     GymEnv, InstID, Monitor, Observation,
-                                     ObservationSpace, Outcome, SpaceContains,
-                                     Step)
+import           OpenAI.Gym.Data    (Action, ActionSpace, Config, EnvSpec,
+                                     Environment, GymEnv, InstID, Monitor,
+                                     Observation, ObservationSpace, Outcome,
+                                     SpaceContains, Step)
 
 -- | Servant description of OpenAI's Gym HTTP API
 type GymAPI
@@ -54,6 +55,7 @@ type GymAPI
                      :<|> Capture "instance_id" InstID :> "action_space" :> "sample"   :> Get '[JSON] Action
                      :<|> Capture "instance_id" InstID :> "action_space" :> "contains" :> Capture "x" Int :> Get '[JSON] SpaceContains
                      :<|> Capture "instance_id" InstID :> "observation_space"  :> Get '[JSON] ObservationSpace
+                     :<|> Capture "instance_id" InstID :> "spec"  :> Get '[JSON] EnvSpec
                      :<|> Capture "instance_id" InstID :> "monitor" :> "start" :> ReqBody '[JSON] Monitor :> Post '[HTML] ()
                      :<|> Capture "instance_id" InstID :> "monitor" :> "close" :> Post '[HTML] ()
                      :<|> Capture "instance_id" InstID :> "close"   :> Post '[HTML] ())
@@ -90,6 +92,9 @@ envActionSpaceContains ∷ InstID → Int → ClientM SpaceContains
 -- | Get information (name and dimensions\/bounds) of the env's observation_space (@GET \/v1\/envs\/<instance_id>\/observation_space\/@)
 envObservationSpaceInfo ∷ InstID → ClientM ObservationSpace
 
+-- | Get an env's spec (@GET \/v1\/envs\/<instance_id>\/spec\/@)
+envSpec ∷ InstID → ClientM EnvSpec
+
 -- | Start monitoring (@POST \/v1\/envs\/<instance_id>\/monitor\/start\/@)
 envMonitorStart ∷ InstID → Monitor → ClientM ()
 
@@ -114,6 +119,7 @@ shutdownServer ∷ ClientM ()
   :<|> envActionSpaceSample
   :<|> envActionSpaceContains
   :<|> envObservationSpaceInfo
+  :<|> envSpec
   :<|> envMonitorStart
   :<|> envMonitorClose
   :<|> envClose)
