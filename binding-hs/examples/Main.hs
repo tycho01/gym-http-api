@@ -39,7 +39,7 @@ defaultGame = CartPoleV0
 -- | main function, run `example` given CLI args + env vars
 main ∷ IO ()
 main = do
-  CliArgs{game, verbose, quiet, agent} <- getArgs
+  CliArgs{ game, verbose, quiet, agent, host, port } <- getArgs
 
   let logLvl
         | verbose = DEBUG
@@ -57,13 +57,11 @@ main = do
   let agentType = agents Map.! agent
   manager <- newManager defaultManagerSettings
   let client = runExp gymEnv agentType :: ClientM ()
+  let url = BaseUrl Http host port ""
   out <- runClientM client $ ClientEnv manager url Nothing
   case out of
     Left err -> say ERROR [d|err|]
     Right _  -> return ()
-
-  where
-    url = BaseUrl Http "localhost" 5000 ""
 
 -- | get game env, run n episodes
 runExp ∷ GymEnv → AgentCtor → ClientM ()
