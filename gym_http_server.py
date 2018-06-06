@@ -157,7 +157,7 @@ class Envs(object):
         info = self._get_space_properties(env.observation_space)
         for key, value in j.items():
             # Convert both values to json for comparibility
-            if json.dumps(info[key]) != json.dumps(value):
+            if dumps(info[key]) != dumps(value):
                 print('Values for "{}" do not match. Passed "{}", Observed "{}".'.format(key, value, info[key]))
                 return False
         return True
