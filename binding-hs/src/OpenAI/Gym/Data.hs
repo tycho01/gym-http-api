@@ -34,6 +34,9 @@ module OpenAI.Gym.Data
   , SpaceContains (..)
   , EnvSpec (..)
   , SpaceInfo (..)
+  , spaceShape
+  , spaceDType
+  , spaceLoHi
   ) where
 
 import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
@@ -42,7 +45,7 @@ import qualified Data.Aeson                as A ()
 import           Data.Aeson.Types          (Parser, withEmbeddedJSON,
                                             withObject, withText)
 import           Data.HashMap.Strict       (HashMap, fromList)
-import           Data.Map.Strict           (Map, map, mapKeys, toList)
+import           Data.Map.Strict           (Map, elems, map, mapKeys, toList)
 import           Data.Maybe                (fromJust)
 import           Data.Text                 (Text, pack)
 import qualified Data.Text                 as T ()
@@ -326,6 +329,33 @@ instance FromJSON Space where
               "DictSpace" -> \o -> DictSpace
                 <$> o .: "spaces"
     withObject name f $ Object v
+
+spaceShape ∷ Space → [Int]
+spaceShape spc = case spc of
+  Discrete n               -> []
+  MultiBinary n            -> [n]
+  MultiDiscrete nvec       -> nvec
+  Box shape low high dtype -> shape
+  TupleSpace spaces        -> spaces >>= spaceShape
+  DictSpace spaces         -> elems spaces >>= spaceShape
+
+spaceDType ∷ Space → DType
+spaceDType spc = case spc of
+  Discrete n               -> Int64
+  MultiBinary n            -> Int8
+  MultiDiscrete nvec       -> Int8
+  Box shape low high dtype -> dtype
+  -- TupleSpace spaces -> spaces <$> spaceDType
+  -- DictSpace spaces -> elems spaces <$> spaceDType
+
+spaceLoHi ∷ Space → (Int, Int)
+spaceLoHi spc = case spc of
+  Discrete n    -> (0, n)
+  MultiBinary n -> (0, 2)
+  -- MultiDiscrete nvec       -> (nvec <$> (const 0), nvec)
+  -- Box shape low high dtype -> (low, high)
+  -- TupleSpace spaces        -> spaces <$> spaceLoHi
+  -- DictSpace spaces         -> elems spaces <$> spaceLoHi
 
 -- | a Numpy `dtype`, see:
 -- - https://github.com/numpy/numpy/blob/master/numpy/doc/basics.py
