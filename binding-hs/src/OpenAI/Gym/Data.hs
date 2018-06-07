@@ -29,10 +29,11 @@ module OpenAI.Gym.Data
   , Space (..)
   , DType (..)
   -- , AnyAgent
-  , ActionSpace
-  , ObservationSpace
-  , SpaceContains
+  , ActionSpace (..)
+  , ObservationSpace (..)
+  , SpaceContains (..)
   , EnvSpec (..)
+  , SpaceInfo (..)
   ) where
 
 import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
@@ -130,10 +131,11 @@ newtype Environment = Environment { all_envs :: Map Text Text }
 instance ToJSON Environment
 instance FromJSON Environment
 
-newtype ActionSpace = ActionSpace SpaceInfo
+newtype ActionSpace = ActionSpace { unActionSpace :: SpaceInfo }
+
     deriving (Show, ToJSON, FromJSON)
 
-newtype ObservationSpace = ObservationSpace SpaceInfo
+newtype ObservationSpace = ObservationSpace { unObservationSpace :: SpaceInfo }
     deriving (Show, ToJSON, FromJSON)
 
 -- | an info object describing the space's dimensions and type
@@ -176,11 +178,10 @@ instance ToJSON Outcome
 instance FromJSON Outcome
 
 -- | A dict containing auxiliary diagnostic information
-newtype Info = Info Object
+newtype Info = Info { unInfo :: Object }
   deriving (Eq, Show, Generic, ToJSON, FromJSON)
 
 -- | A specification containing meta data about an environment
--- newtype EnvSpec = EnvSpec Object
 data EnvSpec = EnvSpec
   { id                  :: String -- ^ e.g. 'CartPole-v0'
   , trials              :: Int -- ^ e.g. 100
