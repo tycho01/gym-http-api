@@ -268,10 +268,6 @@ data Space =
       , high  :: [Double]
       , dtype :: DType
       }
-  | HighLow
-      { num_rows :: Int
-      , matrix   :: [Double] -- nested?
-      }
   | TupleSpace [Space]
   | DictSpace (Map String Space)
   deriving (Eq, Show)
@@ -297,11 +293,6 @@ instance ToJSON Space where
     , "low" .= low
     , "high" .= high
     , "dtype" .= dtype
-    ]
-  toJSON (HighLow num_rows matrix) = object
-    [ "name" .= ("HighLow" :: String)
-    , "num_rows" .= num_rows
-    , "matrix" .= matrix
     ]
   toJSON (TupleSpace spaces) = object
     [ "name" .= ("Tuple" :: String)
@@ -330,9 +321,6 @@ instance FromJSON Space where
                 <*> o .: "low"
                 <*> o .: "high"
                 <*> o .: "dtype"
-              "HighLow" -> \o -> HighLow
-                <$> o .: "num_rows"
-                <*> o .: "matrix"
               "TupleSpace" -> \o -> TupleSpace
                 <$> o .: "spaces"
               "DictSpace" -> \o -> DictSpace
