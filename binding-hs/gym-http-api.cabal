@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a7e299f1b2daa1b2b03d51f65777da4e5c91ffde7daa8b6ced9b0ba48f7240e7
+-- hash: 14fd630e7d2ec0321ea22619ab85b9099515eee953b656cbaf697d58e722cb11
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -44,8 +44,11 @@ library
     , base-unicode-symbols >=0.2.2.4
     , containers >=0.5.11.0
     , containers-unicode-symbols >=0.3.1.1
+    , dump >=0.2.8
     , hlint >=2.1.5
     , invertible-syntax >=0.2.1
+    , random >=1.1
+    , scientific >=0.3.6.2
     , servant >=0.13.0.1
     , servant-client >=0.13.0.1
     , servant-lucid >=0.8

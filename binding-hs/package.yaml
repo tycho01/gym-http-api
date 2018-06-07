@@ -42,6 +42,10 @@ library:
   - servant-lucid >= 0.8
   - invertible-syntax >= 0.2.1
   - unordered-containers >= 0.2.9.0
+  - base >= 4.11.1.0
+  - dump >= 0.2.8
+  - scientific >= 0.3.6.2
+  - random >= 1.1
 
 executables:
   example:
