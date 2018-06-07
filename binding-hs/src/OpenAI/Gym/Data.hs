@@ -398,7 +398,7 @@ class Agent agent where
   -- actionSpace ∷ agent → Info
   -- obsSpace ∷ agent → Info
   act ∷ agent → Observation → Int → InstID → ClientM Action
-  learn ∷ agent → Observation → Action → Double → Observation → Bool → Int → Info → ClientM ()
+  learn ∷ Monad m ⇒ agent → Observation → Action → Double → Observation → Bool → Int → Info → m ()
   learn agent ob ac reward ob_ done t info = return ()
 
 -- -- | a type yielding the union of any Agent implementation
