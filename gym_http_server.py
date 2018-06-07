@@ -185,9 +185,6 @@ class Envs(object):
             elif info['name'] == 'Box':
                 info['low']  = json_encode_np(space.low)
                 info['high']  = json_encode_np(space.high)
-            elif info['name'] == 'HighLow':
-                info['num_rows'] = space.num_rows
-                info['matrix'] = json_encode_np(space.matrix)
         return info
 
     def get_spec(self, instance_id):
