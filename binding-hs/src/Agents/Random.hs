@@ -1,4 +1,6 @@
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE InstanceSigs        #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE UnicodeSyntax       #-}
 
 -------------------------------------------------------------------------------
 -- |
@@ -11,19 +13,22 @@
 -------------------------------------------------------------------------------
 module Agents.Random (RandomAgent (..)) where
 
-import Data.Vector (fromList)
-import Data.Map.Strict (keys, elems)
-import Data.HashMap.Strict (fromList)
 import           Control.Monad.IO.Class (liftIO)
-import Debug.Dump (d)
-import Data.Text (pack)
-import System.Random (randomRIO)
 import           Data.Aeson.Types       (Value (..))
-import           Data.Scientific        (scientific)
+import           Data.HashMap.Strict    (fromList)
+import           Data.Map.Strict        (elems, keys)
+import           Data.Scientific        (fromFloatDigits, scientific)
+import           Data.Text              (pack)
+import           Data.Vector            (fromList)
+import           Debug.Dump             (d)
 import           OpenAI.Gym             (Action (..), ActionSpace (..),
                                          Agent (..), EnvSpec (..), Info (..),
-                                         ObservationSpace (..), Observation (..), Space (..),
-                                         SpaceInfo (..), envActionSpaceSample, spaceShape, spaceDType, spaceLoHi)
+                                         InstID, Observation (..),
+                                         ObservationSpace (..), Space (..),
+                                         SpaceInfo (..), envActionSpaceSample,
+                                         spaceDType, spaceLoHi, spaceShape)
+import           Servant.Client         (ClientM)
+import           System.Random          (getStdGen, randomRIO, randoms)
 
 -- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`: $a_{random} \in A$
 data RandomAgent spec actionSpace obsSpace = RandomAgent EnvSpec ActionSpace ObservationSpace
@@ -42,11 +47,19 @@ instance Agent (RandomAgent spec actionSpace obsSpace) where
           spaces = elems dict
 
   act (RandomAgent spec actionSpace obsSpace) obs t inst = do
-    let aSpace = getSpaceInfo $ unActionSpace actionSpace
-    let shape = spaceShape aSpace
-    let (lo, hi) = spaceLoHi aSpace
     ac <- case shape of
+            -- Discrete
             [] -> do
               i <- liftIO $ randomRIO (lo, hi - 1)
-              return $ Number $ scientific (toInteger i) 0
+              return $ Number $ toScientific $ toInteger i
+            -- MultiBinary
+            [n] -> do
+              rng <- liftIO $ getStdGen
+              let nums :: [Double] = randoms rng
+              return $ Array $ Data.Vector.fromList $ Number <$> fromFloatDigits <$> take n nums
     return $ Action ac
+
+    where aSpace = getSpaceInfo $ unActionSpace actionSpace
+          ob = getObservation obs
+          shape = spaceShape aSpace
+          toScientific = flip scientific 0
