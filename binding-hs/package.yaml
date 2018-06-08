@@ -46,6 +46,7 @@ library:
   - dump >= 0.2.8
   - scientific >= 0.3.6.2
   - random >= 1.1
+  - vector >= 0.12.0.1
 
 executables:
   example:
