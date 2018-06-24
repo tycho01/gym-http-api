@@ -60,7 +60,7 @@ main = do
   let url = BaseUrl Http host port ""
   out <- runClientM client $ ClientEnv manager url Nothing
   case out of
-    Left err -> say ERROR [d|err|]
+    Left err -> say ERROR $ show err -- [d|err|]
     Right _  -> return ()
 
 -- | get game env, run n episodes
@@ -78,13 +78,13 @@ runExp gymEnv agentType = do
   let maxSteps = max_episode_steps spec
   let episodeCount = trials spec
   obsSpace <- envObservationSpaceInfo inst
-  say DEBUG [d| gymEnv |]
-  say DEBUG [d| envs |]
-  say DEBUG [d| gameIds |]
-  say DEBUG [d| inst |]
-  say INFO [d| spec |]
-  say INFO [d| actionSpace |]
-  say INFO [d| obsSpace |]
+  -- say DEBUG [d| gymEnv |]
+  -- say DEBUG [d| envs |]
+  -- say DEBUG [d| gameIds |]
+  -- say DEBUG [d| inst |]
+  -- say INFO [d| spec |]
+  -- say INFO [d| actionSpace |]
+  -- say INFO [d| obsSpace |]
   let agent = agentType spec actionSpace obsSpace
   let exp = replicateM_ episodeCount $ experiment agent inst maxSteps
   exp
@@ -101,6 +101,10 @@ experiment agent inst maxSteps = do
     go ∷ Int → Bool → Observation → ClientM ()
     go t done ob = do
       ac <- act agent ob t inst
+      -- spaceContains <- envActionSpaceContains inst $ getAction ac
+      -- if not (getSpaceContains spaceContains)
+      --   then say ERROR "illegal action " ++ show ac
+      --   else return ()
       Outcome ob' reward done info <- envStep inst $ Step ac True
       learn agent ob ac reward (Observation ob') done t info
       when (not done && t < maxSteps) $ go (t + 1) done $ Observation ob'

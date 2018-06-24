@@ -26,40 +26,110 @@ import           OpenAI.Gym             (Action (..), ActionSpace (..),
                                          InstID, Observation (..),
                                          ObservationSpace (..), Space (..),
                                          SpaceInfo (..), envActionSpaceSample,
-                                         spaceDType, spaceLoHi, spaceShape)
+                                         isFraction, spaceDType, spaceShape)
+                                        --  , spaceLoHi
 import           Servant.Client         (ClientM)
-import           System.Random          (getStdGen, randomRIO, randoms)
+import           System.Random          (getStdGen, randomR, randomRIO,
+                                         randomRs, randoms)
+import           TensorFlow.GenOps.Core (randomUniform, randomUniformInt)
 
 -- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`: $a_{random} \in A$
 data RandomAgent spec actionSpace obsSpace = RandomAgent EnvSpec ActionSpace ObservationSpace
 instance Agent (RandomAgent spec actionSpace obsSpace) where
 
-  act (RandomAgent spec (ActionSpace (SpaceInfo (TupleSpace spaces))) obsSpace) obs t inst = do
-    acts <- traverse f spaces
-    return $ Action $ Array $ Data.Vector.fromList $ fmap getAction acts
-    where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+  -- -- act ∷ agent → Observation → Int → InstID → ClientM Action
+  -- act (RandomAgent spec (ActionSpace (SpaceInfo (TupleSpace spaces))) obsSpace) obs t inst = do
+  --   acts <- traverse f spaces
+  --   return $ Action $ toArr $ getAction <$> acts
+  --   where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
 
-  act (RandomAgent spec (ActionSpace (SpaceInfo (DictSpace dict))) obsSpace) obs t inst = do
-    acts <- traverse f spaces
-    return $ Action $ Object $ Data.HashMap.Strict.fromList $ zip ks $ fmap getAction acts
-    where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
-          ks = pack <$> keys dict
-          spaces = elems dict
+  -- -- act ∷ agent → Observation → Int → InstID → ClientM Action
+  -- act (RandomAgent spec (ActionSpace (SpaceInfo (DictSpace dict))) obsSpace) obs t inst = do
+  --   acts <- traverse f spaces
+  --   return $ Action $ Object $ Data.HashMap.Strict.fromList $ zip ks $ getAction <$> acts
+  --   where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+  --         ks = pack <$> keys dict
+  --         spaces = elems dict
 
+  -- act ∷ agent → Observation → Int → InstID → ClientM Action
   act (RandomAgent spec actionSpace obsSpace) obs t inst = do
-    ac <- case shape of
-            -- Discrete
-            [] -> do
-              i <- liftIO $ randomRIO (lo, hi - 1)
-              return $ Number $ toScientific $ toInteger i
-            -- MultiBinary
-            [n] -> do
-              rng <- liftIO $ getStdGen
-              let nums :: [Double] = randoms rng
-              return $ Array $ Data.Vector.fromList $ Number <$> fromFloatDigits <$> take n nums
+
+    -- factor this out?
+    rng <- liftIO getStdGen
+    ac <- case aSpace of
+      -- shape []
+      -- Int
+      Discrete n -> do
+        -- gym.spaces.np_random.randint(self.n)
+        let nums :: [Int] = randomRs (0, n - 1) rng
+        return $ toNum $ head nums
+      -- Bool
+      MultiBinary n -> do
+        -- gym.spaces.np_random.randint(low=0, high=2, size=self.n).astype(self.dtype)
+        let nums :: [Int] = randomRs (0, 1) rng
+        return $ toArr $ toNum <$> take n nums
+      MultiDiscrete nvec -> do
+        -- (gym.spaces.np_random.rand(self.nvec.size) * self.nvec).astype(self.dtype)
+        let nums :: [Double] = randomRs (0, 1) rng -- randoms rng
+        let mults :: [Double] = zipWith (*) (fromIntegral <$> nvec) $ take (length nvec) nums
+        return $ toArr $ (toNum . floor <$> mults)
+      -- Box shape low high dtype -> do
+      --   -- gym.spaces.np_random.uniform(low=self.low, high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
+      --   -- let nums :: [Int] = randomRs (low, high) rng
+      --   -- let nums :: [Double] = randomRs (low, high) rng
+      --   case isFraction dtype of
+      --     False -> do
+      --       randomUniformInt shape low high
+      --     True -> do
+      --       randomUniform shape low high
+      --   -- return $ toArr $ Number <$> fromFloatDigits <$> take n nums
+      TupleSpace spaces -> do
+        -- tuple([space.sample() for space in self.spaces])
+        acts <- traverse f spaces
+        return $ toArr $ getAction <$> acts
+        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+      DictSpace dict -> do
+        -- OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
+        acts <- traverse f spaces
+        return $ Object $ Data.HashMap.Strict.fromList $ zip ks $ getAction <$> acts
+        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+              ks = pack <$> keys dict
+              spaces = elems dict
+
+    -- ac <- case shape of
+    --         -- Discrete
+    --         [] -> do
+    --           i <- liftIO $ randomRIO (lo, hi - 1)
+    --           return $ toNum i
+    --         -- MultiBinary
+    --         [n] -> do
+    --           -- factor this out!
+    --           rng <- liftIO $ getStdGen
+    --            -- annotation: nasty hack
+    --           let nums :: [Double] = randoms rng
+    --           -- nums <- randoms <$> liftIO $ getStdGen
+    --           -- nums <- randomRs (lo, hi - 1) rng
+    --           return $ toArr $ Number <$> fromFloatDigits <$> take n nums
+    --         -- MultiDiscrete
+    --         -- Box
+    --         -- list -> do
+
+    -- liftIO $ print [d| shape |]
+    -- liftIO $ print [d| aSpace |]
+    -- -- liftIO $ print [d| shape aSpace |]
+    -- -- liftIO $ print [d|oSpace|]
+    -- liftIO $ print [d|ob|]
+    -- liftIO $ print [d|ac|]
     return $ Action ac
 
     where aSpace = getSpaceInfo $ unActionSpace actionSpace
+          -- oSpace = getSpaceInfo $ unObservationSpace obsSpace
           ob = getObservation obs
           shape = spaceShape aSpace
-          toScientific = flip scientific 0
+          -- (lo, hi) = spaceLoHi aSpace
+          -- toScientific = flip scientific 0
+          toNum = Number . flip scientific 0 . toInteger
+          toArr = Array . Data.Vector.fromList
+
+-- , reward_threshold    :: Double
+-- , nondeterministic    :: Bool

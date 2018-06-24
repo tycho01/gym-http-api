@@ -11,6 +11,7 @@
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE ExistentialQuantification  #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE UnicodeSyntax              #-}
 
@@ -36,7 +37,8 @@ module OpenAI.Gym.Data
   , SpaceInfo (..)
   , spaceShape
   , spaceDType
-  , spaceLoHi
+  -- , spaceLoHi
+  , isFraction
   ) where
 
 import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
@@ -203,18 +205,18 @@ data EnvSpec = EnvSpec
 instance FromJSON EnvSpec where
   parseJSON = withObject "EnvSpec" $ \v -> do
     spec <- v .: "spec"
-    let f = \o -> EnvSpec
-                    <$> o .: "id"
-                    <*> o .: "trials"
-                    <*> o .: "reward_threshold"
-                    <*> o .: "nondeterministic"
-                    <*> o .: "tags"
-                    <*> o .: "max_episode_steps"
-                    <*> o .: "max_episode_seconds"
-                    <*> o .: "_env_name"
-                    <*> o .: "_entry_point"
-                    <*> o .: "_local_only"
-                    <*> o .: "_kwargs"
+    let f o = EnvSpec
+                <$> o .: "id"
+                <*> o .: "trials"
+                <*> o .: "reward_threshold"
+                <*> o .: "nondeterministic"
+                <*> o .: "tags"
+                <*> o .: "max_episode_steps"
+                <*> o .: "max_episode_seconds"
+                <*> o .: "_env_name"
+                <*> o .: "_entry_point"
+                <*> o .: "_local_only"
+                <*> o .: "_kwargs"
     withObject "spec" f $ Object spec
 
 -- | An action to take in the environment
@@ -331,7 +333,7 @@ instance FromJSON Space where
     withObject name f $ Object v
 
 spaceShape ∷ Space → [Int]
-spaceShape spc = case spc of
+spaceShape = \case
   Discrete n               -> []
   MultiBinary n            -> [n]
   MultiDiscrete nvec       -> nvec
@@ -340,7 +342,7 @@ spaceShape spc = case spc of
   DictSpace spaces         -> elems spaces >>= spaceShape
 
 spaceDType ∷ Space → DType
-spaceDType spc = case spc of
+spaceDType = \case
   Discrete n               -> Int64
   MultiBinary n            -> Int8
   MultiDiscrete nvec       -> Int8
@@ -348,14 +350,14 @@ spaceDType spc = case spc of
   -- TupleSpace spaces -> spaces <$> spaceDType
   -- DictSpace spaces -> elems spaces <$> spaceDType
 
-spaceLoHi ∷ Space → (Int, Int)
-spaceLoHi spc = case spc of
-  Discrete n    -> (0, n)
-  MultiBinary n -> (0, 2)
-  -- MultiDiscrete nvec       -> (nvec <$> (const 0), nvec)
-  -- Box shape low high dtype -> (low, high)
-  -- TupleSpace spaces        -> spaces <$> spaceLoHi
-  -- DictSpace spaces         -> elems spaces <$> spaceLoHi
+-- spaceLoHi ∷ Space → (Int, Int)
+-- spaceLoHi = \case
+--   Discrete n    -> (0, n)
+--   MultiBinary n -> (0, 2)
+--   -- MultiDiscrete nvec       -> (nvec <$> (const 0), nvec)
+--   -- Box shape low high dtype -> (low, high)
+--   -- TupleSpace spaces        -> spaces <$> spaceLoHi
+--   -- DictSpace spaces         -> elems spaces <$> spaceLoHi
 
 -- | a Numpy `dtype`, see:
 -- - https://github.com/numpy/numpy/blob/master/numpy/doc/basics.py
@@ -409,6 +411,14 @@ instance FromJSON DType where
     "float64" -> Float64
 
 -- instance FromJSON DType where parseJSON = withText "DType" $ \x -> readsPrec x
+
+isFraction ∷ DType → Bool
+isFraction = \case
+  Float8 -> True
+  Float16 -> True
+  Float32 -> True
+  Float64 -> True
+  _ -> False
 
 -- | an agent as described in the reinforcement learning literature
 class Agent agent where
