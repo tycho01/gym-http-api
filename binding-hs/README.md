@@ -3,7 +3,13 @@
 ## Usage
 
 ```
-python3 ../gym_http_server.py
+# python3 ../gym_http_server.py
+# cd ..
+# docker run -p 5000:5000 -v $PWD:/app --workdir /app python bash -c "curl https://bootstrap.pypa.io/get-pip.py | python - && pip install -r requirements.txt && python gym_http_server.py"
+# docker run -p 5000:5000 -v $PWD:/app --workdir /app publicisworldwide/python-conda bash -c "pip install -r requirements.txt && python gym_http_server.py"
+docker build .. --tag gym-api
+docker run --rm -it -p 5000:5000 gym-api
+
 stylish-haskell
 hlint . --report
 stack haddock

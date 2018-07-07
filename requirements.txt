@@ -1,8 +1,7 @@
 numpy==1.14.2
 requests==2.11.0
 pytest
-gym-retro
+# gym-retro
 Flask==1.0.2
 gym==0.10.5
 ujson==1.35
-

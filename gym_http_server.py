@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, Response
 import uuid
 import gym
 from gym.envs.registration import EnvSpec
-import retro
+# import retro
 import numpy as np
 import six
 import argparse
@@ -11,7 +11,7 @@ import sys
 
 from timeit import default_timer as timer
 import cProfile
-from ujson import dumps
+import ujson
 
 import logging
 logger = logging.getLogger('werkzeug')
@@ -99,11 +99,12 @@ class Envs(object):
 
     def create(self, env_id, seed=None, **kwargs):
         try:
-            try:
-                env = retro.make(env_id, **kwargs)
-                env.spec = EnvSpec(env_id + "-v0")
-            except FileNotFoundError:
-                env = gym.make(env_id, **kwargs)
+            env = gym.make(env_id, **kwargs)
+            # try:
+            #     env = retro.make(env_id, **kwargs)
+            #     env.spec = EnvSpec(env_id + "-v0")
+            # except FileNotFoundError:
+            #     env = gym.make(env_id, **kwargs)
             if seed:
                 env.seed(seed)
         except gym.error.Error:
@@ -157,7 +158,7 @@ class Envs(object):
         info = self._get_space_properties(env.observation_space)
         for key, value in j.items():
             # Convert both values to json for comparibility
-            if dumps(info[key]) != dumps(value):
+            if ujson.dumps(info[key]) != ujson.dumps(value):
                 print('Values for "{}" do not match. Passed "{}", Observed "{}".'.format(key, value, info[key]))
                 return False
         return True
@@ -322,12 +323,13 @@ def env_step(instance_id):
     """
     json = request.get_json() # e-4
     action = get_required_param(json, 'action') # e-6
-    render = get_optional_param(json, 'render', False) # e-6
+    # render = get_optional_param(json, 'render', False) # e-6
+    render = False
     [obs_jsonable, reward, done, info] = envs.step(instance_id, action, render) # e-2
     print(obs_jsonable)
     # return jsonify(observation = obs_jsonable,
     #                 reward = reward, done = done, info = info) # e-1
-    return dumps({'observation':obs_jsonable, 'reward':reward, 'done':done, 'info':info}) # e-1
+    return ujson.dumps({'observation':obs_jsonable, 'reward':reward, 'done':done, 'info':info}) # e-1
 
 @app.route('/v1/envs/<instance_id>/action_space/', methods=['GET'])
 def env_action_space_info(instance_id):
