@@ -30,7 +30,7 @@ import           OpenAI.Gym             (Action (..), ActionSpace (..),
 import           Servant.Client         (ClientM)
 import           System.Random          (getStdGen, randomR, randomRIO,
                                          randomRs, randoms)
-import           TensorFlow.GenOps.Core (randomUniform, randomUniformInt)
+-- import           TensorFlow.GenOps.Core (randomUniform, randomUniformInt)
 
 -- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`: $a_{random} \in A$
 data RandomAgent spec actionSpace obsSpace = RandomAgent EnvSpec ActionSpace ObservationSpace
@@ -71,7 +71,7 @@ instance Agent (RandomAgent spec actionSpace obsSpace) where
         -- (gym.spaces.np_random.rand(self.nvec.size) * self.nvec).astype(self.dtype)
         let nums :: [Double] = randomRs (0, 1) rng -- randoms rng
         let mults :: [Double] = zipWith (*) (fromIntegral <$> nvec) $ take (length nvec) nums
-        return $ toArr $ (toNum . floor <$> mults)
+        return $ toArr (toNum . floor <$> mults)
       -- Box shape low high dtype -> do
       --   -- gym.spaces.np_random.uniform(low=self.low, high=self.high + (0 if self.dtype.kind == 'f' else 1), size=self.low.shape).astype(self.dtype)
       --   -- let nums :: [Int] = randomRs (low, high) rng
