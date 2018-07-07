@@ -20,7 +20,6 @@ import           Data.Map.Strict        (elems, keys)
 import           Data.Scientific        (fromFloatDigits, scientific)
 import           Data.Text              (pack)
 import           Data.Vector            (fromList)
-import           Debug.Dump             (d)
 import           OpenAI.Gym             (Action (..), ActionSpace (..),
                                          Agent (..), EnvSpec (..), Info (..),
                                          InstID, Observation (..),

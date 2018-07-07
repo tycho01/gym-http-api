@@ -43,7 +43,6 @@ library:
   - invertible-syntax >= 0.2.1
   - unordered-containers >= 0.2.9.0
   - base >= 4.10.1.0
-  - dump >= 0.2.8
   - scientific >= 0.3.6.2
   - random >= 1.1
   - vector >= 0.12.0.1
@@ -59,11 +58,9 @@ executables:
     - mtl >= 2.2.2
     - cmdargs >= 0.10.20
     - extra >= 1.6.6
-    - transformers-base >= 0.4.5.2
     - lifted-base >= 0.2.3.12
     - monad-control >= 1.0.2.3
     - hslogger >= 1.2.10
-    - dump >= 0.2.8
     - ansi-terminal >= 0.8.0.4
 
 tests:

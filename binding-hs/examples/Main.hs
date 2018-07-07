@@ -31,7 +31,6 @@ import           OpenAI.Gym               (Action (..), Agent (..), Config (..),
                                            envMonitorClose, envMonitorStart,
                                            envObservationSpaceInfo, envReset,
                                            envStep, shutdownServer, upload, envSpec)
-import Debug.Dump (d)
 
 
 defaultGame = CartPoleV0
@@ -46,7 +45,7 @@ main = do
         | quiet = WARNING
         | otherwise = INFO
   updateGlobalLogger loggerName $ setLevel logLvl
-  say INFO [d|logLvl|]
+  -- say INFO [d|logLvl|]
 
   gymEnv :: GymEnv <- case readMaybe game of
                 Just env -> return env
