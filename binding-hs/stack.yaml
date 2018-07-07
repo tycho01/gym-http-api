@@ -6,7 +6,7 @@ extra-deps:
 - base-4.10.1.0
 - invertible-syntax-0.2.1
 - dump-0.2.8
-resolver: nightly-2018-05-21
+resolver: lts-11.15
 # allow-newer: true
 # allow-different-user: true
 explicit-setup-deps:
