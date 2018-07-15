@@ -24,16 +24,15 @@ import           OpenAI.Gym             (Action (..), ActionSpace (..),
                                          Agent (..), EnvSpec (..), Info (..),
                                          InstID, Observation (..),
                                          ObservationSpace (..), Space (..),
-                                         SpaceInfo (..), envActionSpaceSample,
-                                         isFraction, spaceDType, spaceShape)
+                                         SpaceInfo (..), isFraction, spaceDType, spaceShape)
                                         --  , spaceLoHi
 import           System.Random          (getStdGen, randomR, randomRIO,
                                          randomRs, randoms)
 -- import           TensorFlow.GenOps.Core (randomUniform, randomUniformInt)
 
--- | an agent that acts randomly using the HTTP API's `envActionSpaceSample`: $a_{random} \in A$
-data RandomAgent spec actionSpace obsSpace = RandomAgent EnvSpec ActionSpace ObservationSpace
-instance Agent (RandomAgent spec actionSpace obsSpace) where
+-- | an agent that acts randomly: $a_{random} \in A$
+data RandomAgent spec actionSpace obsSpace state = RandomAgent EnvSpec ActionSpace ObservationSpace ()
+instance Agent (RandomAgent spec actionSpace obsSpace state) where
 
   -- -- act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
   -- act (RandomAgent spec (ActionSpace (SpaceInfo (TupleSpace spaces))) obsSpace) obs t inst = do
@@ -50,7 +49,7 @@ instance Agent (RandomAgent spec actionSpace obsSpace) where
   --         spaces = elems dict
 
   -- act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
-  act (RandomAgent spec actionSpace obsSpace) obs t inst = do
+  act (RandomAgent spec actionSpace obsSpace state) obs t inst = do
 
     -- factor this out?
     rng <- liftIO getStdGen
@@ -85,12 +84,12 @@ instance Agent (RandomAgent spec actionSpace obsSpace) where
         -- tuple([space.sample() for space in self.spaces])
         acts <- traverse f spaces
         return $ toArr $ getAction <$> acts
-        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace state) obs t inst
       DictSpace dict -> do
         -- OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
         acts <- traverse f spaces
         return $ Object $ Data.HashMap.Strict.fromList $ zip ks $ getAction <$> acts
-        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace state) obs t inst
               ks = pack <$> keys dict
               spaces = elems dict
 

@@ -17,3 +17,7 @@ resolver: lts-11.15
 # allow-different-user: true
 explicit-setup-deps:
   "*": true
+ 
+nix: 
+  enable: true 
+  packages: [zlib, zlib.dev, zlib.out, snappy] 

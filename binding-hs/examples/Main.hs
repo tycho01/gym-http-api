@@ -63,7 +63,7 @@ main = do
     Right _  -> return ()
 
 -- | get game env, run n episodes
-runExp ∷ GymEnv → AgentCtor → ClientM ()
+runExp ∷ GymEnv → AgentCtor () → ClientM ()
 runExp gymEnv agentType = do
   envs <- all_envs <$> envListAll
   let gameIds = Map.filter (== (T.pack $ show gymEnv)) envs
@@ -84,13 +84,13 @@ runExp gymEnv agentType = do
   -- say INFO [d| spec |]
   -- say INFO [d| actionSpace |]
   -- say INFO [d| obsSpace |]
-  let agent = agentType spec actionSpace obsSpace
+  let agent = agentType spec actionSpace obsSpace ()
   let exp = replicateM_ episodeCount $ experiment agent inst maxSteps
   exp
 
 -- | an experiment for an agent, an environment
 -- experiment :: Monad m => AnyAgent -> InstID -> Int -> m ()
-experiment ∷ AnyAgent → InstID → Int → ClientM ()
+experiment ∷ AnyAgent () → InstID → Int → ClientM ()
 experiment agent inst maxSteps = do
   ob0 <- envReset inst -- first close monitor
   go 0 False ob0

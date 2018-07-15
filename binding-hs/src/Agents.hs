@@ -21,11 +21,11 @@ import qualified Data.Map.Strict as Map
 import           OpenAI.Gym      (ActionSpace, Agent, EnvSpec, ObservationSpace)
 
 type AnyAgentType = RandomAgent
-type AnyAgent = AnyAgentType EnvSpec ActionSpace ObservationSpace
-type AgentCtor = EnvSpec → ActionSpace → ObservationSpace → AnyAgent
+type AnyAgent a = AnyAgentType EnvSpec ActionSpace ObservationSpace a
+type AgentCtor a = EnvSpec → ActionSpace → ObservationSpace → a → AnyAgent a
 
 -- | a map of string identifiers to agents
-agents ∷ Map.Map String AgentCtor
+agents ∷ Map.Map String (AgentCtor ())
 agents = Map.fromList [
     ("random", RandomAgent)
   ]

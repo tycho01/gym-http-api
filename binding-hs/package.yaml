@@ -31,6 +31,7 @@ dependencies:
   - text >= 1.2.3.0
   - base-unicode-symbols >= 0.2.2.4
   - containers-unicode-symbols >= 0.3.1.1
+  - mtl >= 2.2.2
  
 library:
   source-dirs: src
@@ -44,6 +45,7 @@ library:
   - scientific >= 0.3.6.2
   - random >= 1.1
   - vector >= 0.12.0.1
+  - transformers >= 0.5.2.0
 
 executables:
   example:
@@ -53,7 +55,6 @@ executables:
     - gym-http-api # >= 0.1.0.0
     - http-client >= 0.5.12.1
     - exceptions >= 0.10.0
-    - mtl >= 2.2.2
     - cmdargs >= 0.10.20
     - extra >= 1.6.6
     - lifted-base >= 0.2.3.12
