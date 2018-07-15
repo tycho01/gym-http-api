@@ -27,7 +27,6 @@ import           OpenAI.Gym             (Action (..), ActionSpace (..),
                                          SpaceInfo (..), envActionSpaceSample,
                                          isFraction, spaceDType, spaceShape)
                                         --  , spaceLoHi
-import           Servant.Client         (ClientM)
 import           System.Random          (getStdGen, randomR, randomRIO,
                                          randomRs, randoms)
 -- import           TensorFlow.GenOps.Core (randomUniform, randomUniformInt)
