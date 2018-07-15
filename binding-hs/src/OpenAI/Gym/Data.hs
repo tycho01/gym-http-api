@@ -41,6 +41,7 @@ module OpenAI.Gym.Data
   , isFraction
   ) where
 
+import           Control.Monad.IO.Class    (MonadIO)
 import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
                                             Value (..), object, (.:), (.=))
 import qualified Data.Aeson                as A ()
@@ -55,7 +56,6 @@ import           GHC.Exts                  (fromList)
 import           GHC.Generics              (Generic)
 import           Prelude                   hiding (print, pure, (<*))
 import           Servant.API               (ToHttpApiData (..))
-import           Servant.Client            (ClientM)
 import           Text.Syntax               (Syntax, text, (<|>))
 import           Text.Syntax.Classes       (pure)
 import           Text.Syntax.Combinators   ((<*))
@@ -426,7 +426,7 @@ class Agent agent where
   -- learn :: Monad m => agent -> Observation -> Action -> Double -> Observation -> Bool -> Int -> Info -> m ()
   -- actionSpace ∷ agent → Info
   -- obsSpace ∷ agent → Info
-  act ∷ agent → Observation → Int → InstID → ClientM Action
+  act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
   learn ∷ Monad m ⇒ agent → Observation → Action → Double → Observation → Bool → Int → Info → m ()
   learn agent ob ac reward ob_ done t info = return ()
 

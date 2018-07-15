@@ -13,7 +13,7 @@
 -------------------------------------------------------------------------------
 module Agents.Random (RandomAgent (..)) where
 
-import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Aeson.Types       (Value (..))
 import           Data.HashMap.Strict    (fromList)
 import           Data.Map.Strict        (elems, keys)
@@ -35,13 +35,13 @@ import           System.Random          (getStdGen, randomR, randomRIO,
 data RandomAgent spec actionSpace obsSpace = RandomAgent EnvSpec ActionSpace ObservationSpace
 instance Agent (RandomAgent spec actionSpace obsSpace) where
 
-  -- -- act ∷ agent → Observation → Int → InstID → ClientM Action
+  -- -- act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
   -- act (RandomAgent spec (ActionSpace (SpaceInfo (TupleSpace spaces))) obsSpace) obs t inst = do
   --   acts <- traverse f spaces
   --   return $ Action $ toArr $ getAction <$> acts
   --   where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
 
-  -- -- act ∷ agent → Observation → Int → InstID → ClientM Action
+  -- -- act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
   -- act (RandomAgent spec (ActionSpace (SpaceInfo (DictSpace dict))) obsSpace) obs t inst = do
   --   acts <- traverse f spaces
   --   return $ Action $ Object $ Data.HashMap.Strict.fromList $ zip ks $ getAction <$> acts
@@ -49,7 +49,7 @@ instance Agent (RandomAgent spec actionSpace obsSpace) where
   --         ks = pack <$> keys dict
   --         spaces = elems dict
 
-  -- act ∷ agent → Observation → Int → InstID → ClientM Action
+  -- act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
   act (RandomAgent spec actionSpace obsSpace) obs t inst = do
 
     -- factor this out?
