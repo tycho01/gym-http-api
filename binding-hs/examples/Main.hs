@@ -85,13 +85,14 @@ runExp gymEnv agentType = do
   -- say INFO [d| actionSpace |]
   -- say INFO [d| obsSpace |]
   let agent = agentType spec actionSpace obsSpace ()
-  let exp = replicateM_ episodeCount $ experiment agent inst maxSteps
+  let state = initState agent ()
+  let exp = replicateM_ episodeCount $ experiment agent inst maxSteps state
   exp
 
 -- | an experiment for an agent, an environment
 -- experiment :: Monad m => AnyAgent -> InstID -> Int -> m ()
-experiment ∷ AnyAgent () → InstID → Int → ClientM ()
-experiment agent inst maxSteps = do
+experiment ∷ AnyAgent () → InstID → Int → () → ClientM ()
+experiment agent inst maxSteps state = do
   ob0 <- envReset inst -- first close monitor
   go 0 False ob0
   where
@@ -99,11 +100,11 @@ experiment agent inst maxSteps = do
     -- go :: Monad m => Int -> Bool -> Observation -> m ()
     go ∷ Int → Bool → Observation → ClientM ()
     go t done ob = do
-      ac <- act agent ob t inst
+      ac <- act agent state ob t inst
       -- spaceContains <- envActionSpaceContains inst $ getAction ac
       -- if not (getSpaceContains spaceContains)
       --   then say ERROR "illegal action " ++ show ac
       --   else return ()
       Outcome ob' reward done info <- envStep inst $ Step ac True
-      learn agent ob ac reward (Observation ob') done t info
+      learn agent state ob ac reward (Observation ob') done t info
       when (not done && t < maxSteps) $ go (t + 1) done $ Observation ob'

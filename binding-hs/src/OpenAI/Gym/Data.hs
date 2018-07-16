@@ -14,6 +14,8 @@
 {-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE UnicodeSyntax              #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
 
 module OpenAI.Gym.Data
   ( GymEnv (..)
@@ -421,14 +423,15 @@ isFraction = \case
   _ -> False
 
 -- | an agent as described in the reinforcement learning literature
-class Agent agent where
+class Agent agent state where
+  initState :: agent → state → state
   -- act :: Monad m => agent -> Observation -> Int -> m Action
   -- learn :: Monad m => agent -> Observation -> Action -> Double -> Observation -> Bool -> Int -> Info -> m ()
   -- actionSpace ∷ agent → Info
   -- obsSpace ∷ agent → Info
-  act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
-  learn ∷ Monad m ⇒ agent → Observation → Action → Double → Observation → Bool → Int → Info → m ()
-  learn agent ob ac reward ob_ done t info = return ()
+  act ∷ MonadIO m ⇒ agent → state → Observation → Int → InstID → m Action
+  learn ∷ Monad m ⇒ agent → state → Observation → Action → Double → Observation → Bool → Int → Info → m ()
+  learn agent state ob ac reward ob_ done t info = return ()
 
 -- -- | a type yielding the union of any Agent implementation
 -- data AnyAgent = forall a . Agent a ⇒ AnyAgent a

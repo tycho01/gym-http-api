@@ -1,6 +1,7 @@
 {-# LANGUAGE InstanceSigs        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UnicodeSyntax       #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 -------------------------------------------------------------------------------
 -- |
@@ -32,7 +33,10 @@ import           System.Random          (getStdGen, randomR, randomRIO,
 
 -- | an agent that acts randomly: $a_{random} \in A$
 data RandomAgent spec actionSpace obsSpace state = RandomAgent EnvSpec ActionSpace ObservationSpace ()
-instance Agent (RandomAgent spec actionSpace obsSpace state) where
+instance Agent (RandomAgent spec actionSpace obsSpace state) () where
+
+  -- fake a static method
+  initState agent _ = ()
 
   -- -- act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
   -- act (RandomAgent spec (ActionSpace (SpaceInfo (TupleSpace spaces))) obsSpace) obs t inst = do
@@ -49,7 +53,7 @@ instance Agent (RandomAgent spec actionSpace obsSpace state) where
   --         spaces = elems dict
 
   -- act ∷ MonadIO m ⇒ agent → Observation → Int → InstID → m Action
-  act (RandomAgent spec actionSpace obsSpace state) obs t inst = do
+  act (RandomAgent spec actionSpace obsSpace state') state obs t inst = do
 
     -- factor this out?
     rng <- liftIO getStdGen
@@ -84,12 +88,12 @@ instance Agent (RandomAgent spec actionSpace obsSpace state) where
         -- tuple([space.sample() for space in self.spaces])
         acts <- traverse f spaces
         return $ toArr $ getAction <$> acts
-        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace state) obs t inst
+        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace state) state obs t inst
       DictSpace dict -> do
         -- OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
         acts <- traverse f spaces
         return $ Object $ Data.HashMap.Strict.fromList $ zip ks $ getAction <$> acts
-        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace state) obs t inst
+        where f spc = act (RandomAgent spec (ActionSpace (SpaceInfo spc)) obsSpace state) state obs t inst
               ks = pack <$> keys dict
               spaces = elems dict
 
