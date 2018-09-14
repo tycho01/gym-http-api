@@ -12,11 +12,11 @@ docker run --rm -it -p 5000:5000 gym-api
 
 stylish-haskell
 hlint . --report
-stack haddock
-stack build && stack exec example
-stack build --file-watch
-stack test --file-watch
-stack exec example -- -v -a random --game CartPole-v0
+stack --nix haddock
+stack --nix build && stack exec example
+stack --nix build --file-watch
+stack --nix test --file-watch
+stack --nix exec example -- -v -a random --game CartPole-v0
 ```
 
 ## TODO
