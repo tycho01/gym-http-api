@@ -2,6 +2,14 @@ flags: {}
 extra-package-dbs: []
 packages:
 - .
+- location: /home/tycho/Desktop/haskell
+  extra-dep: true
+  subdirs:
+    - tensorflow
+    - tensorflow-proto
+    - tensorflow-opgen 
+    - tensorflow-ops
+    - tensorflow-core-ops
 extra-deps:
 - aeson-1.4.0.0
 - base-4.10.1.0
@@ -12,6 +20,13 @@ extra-deps:
 - invertible-syntax-0.2.1
 - servant-0.13.0.1
 - servant-client-0.13.0.1
+# TensorFlow:
+- haskell-src-exts-1.19.1
+- proto-lens-protoc-0.2.2.3
+- proto-lens-protobuf-types-0.2.2.0
+- snappy-framing-0.1.1
+- snappy-0.2.0.2
+
 resolver: lts-11.15
 # allow-newer: true
 # allow-different-user: true

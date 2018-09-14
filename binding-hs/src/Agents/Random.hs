@@ -29,7 +29,7 @@ import           OpenAI.Gym             (Action (..), ActionSpace (..),
                                         --  , spaceLoHi
 import           System.Random          (getStdGen, randomR, randomRIO,
                                          randomRs, randoms)
--- import           TensorFlow.GenOps.Core (randomUniform, randomUniformInt)
+import           TensorFlow.GenOps.Core (randomUniform, randomUniformInt)
 
 -- | an agent that acts randomly: $a_{random} \in A$
 data RandomAgent spec actionSpace obsSpace state = RandomAgent EnvSpec ActionSpace ObservationSpace ()

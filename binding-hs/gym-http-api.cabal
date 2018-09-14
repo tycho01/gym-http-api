@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 365ab368707b4698d6f52fa426617c13b19514970bf156003e9fb590e32286c4
+-- hash: 9e242493bd9afd80e82bd43436cf425a7746710d3a2a6caee4dac34ec6975f67
 
 name:           gym-http-api
 version:        0.1.0.0
@@ -51,6 +51,7 @@ library
     , servant >=0.13.0.1
     , servant-client >=0.13.0.1
     , servant-lucid >=0.8
+    , tensorflow-core-ops >=0.1.0.0
     , text >=1.2.3.0
     , transformers >=0.5.2.0
     , unordered-containers >=0.2.9.0
