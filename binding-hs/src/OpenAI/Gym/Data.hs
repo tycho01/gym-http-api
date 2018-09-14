@@ -41,9 +41,12 @@ module OpenAI.Gym.Data
   , spaceDType
   -- , spaceLoHi
   , isFraction
+  -- , recurseTuple
+  -- , recurseDict
   ) where
 
 import           Control.Monad.IO.Class    (MonadIO)
+import           Control.Monad.State.Strict (StateT)
 import           Data.Aeson                (FromJSON (..), Object, ToJSON (..),
                                             Value (..), object, (.:), (.=))
 import qualified Data.Aeson                as A ()
@@ -54,6 +57,7 @@ import           Data.Map.Strict           (Map, elems, map, mapKeys, toList)
 import           Data.Maybe                (fromJust)
 import           Data.Text                 (Text, pack)
 import qualified Data.Text                 as T ()
+import           Data.Vector               (fromList)
 import           GHC.Exts                  (fromList)
 import           GHC.Generics              (Generic)
 import           Prelude                   hiding (print, pure, (<*))
@@ -429,9 +433,28 @@ class Agent agent state where
   -- learn :: Monad m => agent -> Observation -> Action -> Double -> Observation -> Bool -> Int -> Info -> m ()
   -- actionSpace ∷ agent → Info
   -- obsSpace ∷ agent → Info
-  act ∷ MonadIO m ⇒ agent → state → Observation → Int → InstID → m Action
-  learn ∷ Monad m ⇒ agent → state → Observation → Action → Double → Observation → Bool → Int → Info → m ()
+  act ∷ MonadIO m ⇒ agent → state → Observation → Int → InstID → StateT state m Action
+  learn ∷ Monad m ⇒ agent → state → Observation → Action → Double → Observation → Bool → Int → Info → StateT state m ()
   learn agent state ob ac reward ob_ done t info = return ()
+
+  -- recurseTuple :: MonadIO m ⇒ agent → Space -> m Value
+  -- recurseTuple agent (TupleSpace spaces) = do
+  --   -- tuple([space.sample() for space in self.spaces])
+  --   acts <- traverse f spaces
+  --   return $ toArr $ getAction <$> acts
+  --   where f spc = act (agent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+
+  -- recurseDict :: MonadIO m ⇒ agent → Space -> m Value
+  -- recurseDict agent (DictSpace dict) = do
+  --   -- OrderedDict([(k, space.sample()) for k, space in self.spaces.items()])
+  --   acts <- traverse f spaces
+  --   return $ Object $ Data.HashMap.Strict.fromList $ zip ks $ getAction <$> acts
+  --   where f spc = act (agent spec (ActionSpace (SpaceInfo spc)) obsSpace) obs t inst
+  --         ks = pack <$> keys dict
+  --         spaces = elems dict
+
+-- toArr :: [Value] -> Value
+-- toArr = Array . Data.Vector.fromList
 
 -- -- | a type yielding the union of any Agent implementation
 -- data AnyAgent = forall a . Agent a ⇒ AnyAgent a
