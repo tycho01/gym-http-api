@@ -10,7 +10,7 @@ import           Control.Exception.Lifted (finally)
 import           Control.Monad            (replicateM_, when)
 import           Control.Monad.Catch      ()
 import           Control.Monad.IO.Class   (MonadIO)
-import           Control.Monad.State.Strict (StateT, runStateT)
+import           Control.Monad.State.Strict (StateT, lift, runStateT)
 import qualified Data.Map.Strict          as Map
 import           Data.Maybe               (fromMaybe, listToMaybe)
 import qualified Data.Text                as T

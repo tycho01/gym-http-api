@@ -1,6 +1,5 @@
 name: gym-http-api
 version: '0.1.0.0'
-description: Haskell bindings for the OpenAI gym API
 category: Web, Learning Environments
 author: Daniel Lucsanszky, Sam Stites, Tycho Grouwstra
 maintainer: dl3913@ic.ac.uk, sam@stites.io, tychogrouwstra@gmail.com
@@ -8,6 +7,7 @@ license: MIT
 github: stites/gym-http-api/binding-hs
 synopsis: REST client to the gym-http-api project
 description:
+  Haskell bindings for the OpenAI gym API.
   This library provides a REST client to the gym open-source library. gym-http-api itself provides a
   <https://github.com/openai/gym-http-api/blob/master/gym_http_server.py python-based REST> server
   to the gym open-source library, allowing development in languages other than python.

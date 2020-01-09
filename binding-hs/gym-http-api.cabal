@@ -1,13 +1,15 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 365ab368707b4698d6f52fa426617c13b19514970bf156003e9fb590e32286c4
+-- hash: e3087c2d22d8aedf80452de1580c44a366a865409ad66014c94fc0c21b16fcf4
 
 name:           gym-http-api
 version:        0.1.0.0
 synopsis:       REST client to the gym-http-api project
-description:    This library provides a REST client to the gym open-source library. gym-http-api itself provides a <https://github.com/openai/gym-http-api/blob/master/gym_http_server.py python-based REST> server to the gym open-source library, allowing development in languages other than python.
+description:    Haskell bindings for the OpenAI gym API. This library provides a REST client to the gym open-source library. gym-http-api itself provides a <https://github.com/openai/gym-http-api/blob/master/gym_http_server.py python-based REST> server to the gym open-source library, allowing development in languages other than python.
                 .
                 Note that the <https://github.com/openai/gym-http-api/ openai/gym-http-api> is a monorepo of all language-clients. This hackage library tracks <https://github.com/stites/gym-http-api/ stites/gym-http-api> which is the actively-maintained haskell fork.
 category:       Web, Learning Environments
@@ -17,7 +19,6 @@ author:         Daniel Lucsanszky, Sam Stites, Tycho Grouwstra
 maintainer:     dl3913@ic.ac.uk, sam@stites.io, tychogrouwstra@gmail.com
 license:        MIT
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
     README.md
 
